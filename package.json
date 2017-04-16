@@ -1,0 +1,42 @@
+{
+    "name": "hxmanager",
+    "displayName": "Haxe Manager",
+    "publisher": "jarrio",
+    "version": "0.0.1",
+    "engines": {
+        "vscode": "^1.4.0"
+    },
+    "activationEvents": [
+        "*"
+    ],
+    "main": "./main",
+    "contributes": {
+        "configuration": {
+            "title": "Open in a new window",
+            "properties": {
+                "hxmanager.newWindow": {
+                    "description": "Decide the default configuration for opening a new window",
+                    "type": "boolean",
+                    "default": false
+                },
+
+                "hxmanager.projectsRoot": {
+                    "description": "The default location to save your projects",
+                    "type": "string",
+                    "default": null
+                }
+            }
+        },        
+        "commands": [
+            {
+                "command": "hxmanager.CreateFlixelProject",
+                "title": "Haxe: Create HaxeFlixel Project"
+            },
+
+            {
+                "command": "hxmanager.CreateHaxeProject",
+                "title": "Haxe: Create Haxe Project"
+            }            
+        ]
+    }
+}

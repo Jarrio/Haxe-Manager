@@ -1,0 +1,5 @@
+-cp src
+-lib vscode
+-js main.js
+-debug
+Main
