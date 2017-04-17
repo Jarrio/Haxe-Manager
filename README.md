@@ -1,4 +1,4 @@
-# Haxe-Manager
+# Haxe Manager
 
 The aim of this is to enable users to create haxe projects from within VScode and expand the ability of vscode to be a more integrated haxe IDE. If you have any specific project or feature requests let me know and I will try to add it whenever I can. 
 
