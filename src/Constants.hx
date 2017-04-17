@@ -13,9 +13,9 @@ class Constants {
     
     public static var classRoot:String = Compile(["templates", "class"]);
 
-    public static var projectHaxeRoot:String = Compile(["templates", "haxe"]);
+    public static var projectHaxeRoot:String = Compile(["templates", "Haxe"]);
 
-    public static var projectHaxeflixelRoot:String = Compile(["templates", "haxeflixel"]);
+    public static var projectHaxeflixelRoot:String = Compile(["templates", "Flixel"]);
 
     
     public static function ApplySlash(directory:String):String {

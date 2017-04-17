@@ -16,7 +16,6 @@ var Commands = function(context,terminal,output) {
 	this.project_root = Vscode.workspace.getConfiguration("hxmanager").get("projectRoot");
 	this.registerCommand("CreateHaxeProject",$bind(this,this.CreateHaxeProject));
 	this.registerCommand("CreateFlixelProject",$bind(this,this.CreateHaxeFlixelProject));
-	this.registerCommand("ClassHaxe",$bind(this,this.ClassHaxe));
 };
 Commands.__name__ = true;
 Commands.prototype = {
@@ -24,21 +23,27 @@ Commands.prototype = {
 		this.context.subscriptions.push(Vscode.commands.registerCommand("hxmanager." + command,callback));
 		this.output.appendLine("INFO: Command {" + command + "} has been registered");
 	}
+	,CreateHaxeProject: function() {
+		this.ShowInput(Projects.Haxe);
+	}
 	,CreateHaxeFlixelProject: function() {
+		this.ShowInput(Projects.Flixel);
+	}
+	,ShowInput: function(projectType) {
 		var _gthis = this;
-		var inputBoxProps = { prompt : "Project Name", placeHolder : "Type a name for the project", value : "path"};
-		Vscode.window.showInputBox(inputBoxProps).then(function(input) {
+		Vscode.window.showInputBox(this.InputBoxProps()).then(function(input) {
 			if(input == null || input == "" || input == "undefined") {
-				Vscode.window.showInformationMessage("You need  to enter a project name!");
+				Vscode.window.showInformationMessage("You need to enter a project name!");
 				return;
 			}
-			_gthis.parse.Project(input,Projects.Flixel);
+			_gthis.parse.Project(input,projectType);
 			Vscode.window.showInformationMessage("Project " + input + " was created!");
 		});
 	}
-	,CreateHaxeProject: function() {
-	}
 	,ClassHaxe: function() {
+	}
+	,InputBoxProps: function() {
+		return { prompt : "Project Name", placeHolder : "Type a name for the project"};
 	}
 	,__class__: Commands
 };
@@ -586,6 +591,7 @@ Main.prototype = {
 };
 Math.__name__ = true;
 var Parse = function(output) {
+	this.save_location = Vscode.workspace.getConfiguration("hxmanager").get("projectsRoot");
 	this.output = output;
 };
 Parse.__name__ = true;
@@ -610,7 +616,11 @@ Parse.ParsePackage = function(directory) {
 	} else {
 		slash = "/";
 	}
-	var split = path.dir.split("source");
+	var divider = "source";
+	if(path.dir.indexOf(divider) == -1) {
+		divider = "src";
+	}
+	var split = path.dir.split(divider);
 	if(split.length >= 2) {
 		var file_location = StringTools.replace(split[1],slash,".");
 		if(file_location.charAt(0) == ".") {
@@ -625,33 +635,58 @@ Parse.ParsePackage = function(directory) {
 };
 Parse.prototype = {
 	Project: function(name,project) {
+		this.projectType = project;
+		if(!sys_FileSystem.exists(this.save_location)) {
+			this.output.appendLine("ERROR: Projects directory is not set or does not exist");
+			return;
+		}
 		switch(project[1]) {
 		case 0:
+			this.ParseHaxe(name);
 			break;
 		case 1:
 			this.ParseFlixel(name);
 			break;
 		}
 	}
+	,ParseHaxe: function(name) {
+		var projectTemplateSrc = Constants.projectHaxeRoot;
+		if(!js_node_Fs.statSync(projectTemplateSrc).isDirectory()) {
+			this.output.appendLine("ERROR: Can't find Haxe Project Template at {" + projectTemplateSrc + "}");
+			return;
+		}
+		var location = this.save_location + "/" + Std.string(this.projectType);
+		var destination = this.save_location + "/" + name;
+		this.MoveDirectory(projectTemplateSrc,this.save_location);
+		this.RenameDirectory(location,destination);
+	}
 	,ParseFlixel: function(name) {
 		var dir = Constants.projectHaxeflixelRoot;
-		if(!js_node_Fs.statSync("" + dir).isDirectory()) {
+		if(!js_node_Fs.statSync(dir).isDirectory()) {
 			this.output.appendLine("ERROR: Can't find HaxeFlixel Project Template at {" + dir + "}");
 			return;
 		}
-		var save_location = Vscode.workspace.getConfiguration("hxmanager").get("projectsRoot");
-		if(!sys_FileSystem.exists(save_location)) {
-			this.output.appendLine("ERROR: Projects directory is not set or does not exist");
-			return;
-		}
-		Helpers.copyFolderRecursiveSync(dir,save_location);
-		js_node_Fs.renameSync(save_location + "/haxeflixel",save_location + ("/" + name));
-		save_location += "/" + name;
-		var project_file = js_node_Fs.readFileSync(save_location + "/Project.xml",{ encoding : "utf8"});
+		var location = this.save_location + "/" + Std.string(this.projectType);
+		var destination = this.save_location + "/" + name;
+		this.MoveDirectory(dir,this.save_location);
+		this.RenameDirectory(location,destination);
+		var project_file = this.GetFileContents(destination + "/Project.xml");
 		var parse = new haxe_Template(project_file);
 		var data = { name : name, height : 500, width : 500};
 		project_file = parse.execute(data);
-		js_node_Fs.writeFileSync(save_location + "/Project.xml",project_file);
+		this.SetFileContents(destination + "/Project.xml",project_file);
+	}
+	,RenameDirectory: function(original,destination) {
+		js_node_Fs.renameSync(original,destination);
+	}
+	,MoveDirectory: function(original,destination) {
+		Helpers.copyFolderRecursiveSync(original,destination);
+	}
+	,GetFileContents: function(path) {
+		return js_node_Fs.readFileSync(path,{ encoding : "utf8"});
+	}
+	,SetFileContents: function(path,content) {
+		js_node_Fs.writeFileSync(path,content);
 	}
 	,__class__: Parse
 };
@@ -1233,8 +1268,8 @@ Constants.extensionRoot = Vscode.extensions.getExtension("jarrio.hxmanager").ext
 Constants.cacheRoot = Constants.Compile(["cache"]);
 Constants.templatesRoot = Constants.Compile(["templates"]);
 Constants.classRoot = Constants.Compile(["templates","class"]);
-Constants.projectHaxeRoot = Constants.Compile(["templates","haxe"]);
-Constants.projectHaxeflixelRoot = Constants.Compile(["templates","haxeflixel"]);
+Constants.projectHaxeRoot = Constants.Compile(["templates","Haxe"]);
+Constants.projectHaxeflixelRoot = Constants.Compile(["templates","Flixel"]);
 haxe_Template.splitter = new EReg("(::[A-Za-z0-9_ ()&|!+=/><*.\"-]+::|\\$\\$([A-Za-z0-9_-]+)\\()","");
 haxe_Template.expr_splitter = new EReg("(\\(|\\)|[ \r\n\t]*\"[^\"]*\"[ \r\n\t]*|[!+=/><*.&|-]+)","");
 haxe_Template.expr_trim = new EReg("^[ ]*([^ ]+)[ ]*$","");

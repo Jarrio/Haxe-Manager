@@ -25,8 +25,6 @@ class Commands {
 
         registerCommand('CreateHaxeProject', this.CreateHaxeProject);
         registerCommand('CreateFlixelProject', this.CreateHaxeFlixelProject);
-        registerCommand('ClassHaxe', this.ClassHaxe);
-
     }
 
     private function registerCommand(command:String, callback:Function) {        
@@ -35,43 +33,37 @@ class Commands {
         this.output.appendLine('INFO: Command {$command} has been registered');
     }
 
+    private function CreateHaxeProject() {
+        this.ShowInput(Projects.Haxe);
+    }
+    
     private function CreateHaxeFlixelProject() {
-        var inputBoxProps:InputBoxOptions = {
-            prompt: "Project Name",
-            placeHolder: "Type a name for the project",
-            value: "path"
-        };
+        this.ShowInput(Projects.Flixel);
+    }
 
-        window.showInputBox(inputBoxProps).then(
+    public function ShowInput(projectType:Projects) {
+        window.showInputBox(this.InputBoxProps()).then(
             function (input) {
                 if (input == null || input == "" || input == "undefined") {
-                    window.showInformationMessage("You need  to enter a project name!");
+                    window.showInformationMessage("You need to enter a project name!");
                     return;
                 }
                 
-                this.parse.Project(input, Projects.Flixel);
-
-                // if (this.terminal != null) {
-                    
-                //     this.terminal.sendText('echo ${this.project_root}');
-                //     var change_path = 'cd ${this.project_root}';
-                //     var create_project = 'flixel template -n $input';
-
-                //     this.terminal.sendText(change_path);
-                //     this.terminal.sendText(create_project);
-
-                // }
+                this.parse.Project(input, projectType);
 
                 window.showInformationMessage('Project $input was created!');                
             }
         );
     }
 
-    public function CreateHaxeProject() {
+    public function ClassHaxe() {
 
     }
 
-    public function ClassHaxe() {
-
+    public function InputBoxProps():InputBoxOptions {
+        return {
+            prompt: "Project Name",
+            placeHolder: "Type a name for the project"
+        };
     }
 }

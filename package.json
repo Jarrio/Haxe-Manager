@@ -2,7 +2,10 @@
     "name": "hxmanager",
     "displayName": "Haxe Manager",
     "publisher": "jarrio",
-    "version": "0.0.1",
+    "version": "0.0.2",
+    "dependencies": {
+        "haxe": "^3.4.0"
+    },
     "engines": {
         "vscode": "^1.4.0"
     },
