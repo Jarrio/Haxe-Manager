@@ -75,12 +75,62 @@ class Parse {
         sys.io.File.saveContent(save_location + '/Project.xml', project_file);        
     }
 
-    public static function ParseHaxeClass(name:String):String {
-        var structure = sys.io.File.getContent(Constants.classRoot + '/haxeClass.hx');
-        var parse = new Template(structure);
+    public static function ParseHaxeClass(name:String, path:String):String {
+        if (FileSystem.exists(Constants.classRoot + '/haxeClass.hx')) {
+            var structure = sys.io.File.getContent(Constants.classRoot + '/haxeClass.hx');
+            var parse = new Template(structure);
+            
+            var data = {
+                name: name,
+                packageName: ParsePackage(path)
+            };
 
-        return parse.execute({name: name});
+            return parse.execute(data);
+        }
+
+        return null;
     }
 
-    public static function ParsePackage(
+    public static function ReturnFile(directory:String):Path {
+        var path = new Path(directory);
+        
+
+        return path;
+    }
+
+    public static function ParsePackage(directory:String):String {
+        var path = new Path(directory);
+        var slash = '';
+        
+        if (path.backslash) {
+            slash = '\\';
+        } else {
+            slash = '/';
+        }
+
+        var divider = "source";
+        
+        if (path.dir.indexOf(divider) == -1) {
+            divider = "src";
+        }
+
+        var split = path.dir.split(divider);
+
+        if (split.length >= 2) {
+            
+            var file_location = StringTools.replace(split[1], slash, '.');
+            
+            if (file_location.charAt(0) == '.') {
+                file_location = file_location.substring(1);
+            }
+
+            if (file_location.charAt(file_location.length - 1) == '.') {
+                file_location = file_location.substring(0, file_location.length - 2);
+            }
+
+            return " " + file_location;
+        }
+        
+        return "";
+    }
 }

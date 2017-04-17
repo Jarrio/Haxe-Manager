@@ -42,7 +42,34 @@ Commands.prototype = {
 	}
 	,__class__: Commands
 };
-var haxe_io_Path = function() { };
+var haxe_io_Path = function(path) {
+	switch(path) {
+	case ".":case "..":
+		this.dir = path;
+		this.file = "";
+		return;
+	}
+	var c1 = path.lastIndexOf("/");
+	var c2 = path.lastIndexOf("\\");
+	if(c1 < c2) {
+		this.dir = HxOverrides.substr(path,0,c2);
+		path = HxOverrides.substr(path,c2 + 1,null);
+		this.backslash = true;
+	} else if(c2 < c1) {
+		this.dir = HxOverrides.substr(path,0,c1);
+		path = HxOverrides.substr(path,c1 + 1,null);
+	} else {
+		this.dir = null;
+	}
+	var cp = path.lastIndexOf(".");
+	if(cp != -1) {
+		this.ext = HxOverrides.substr(path,cp + 1,null);
+		this.file = HxOverrides.substr(path,0,cp);
+	} else {
+		this.ext = null;
+		this.file = path;
+	}
+};
 haxe_io_Path.__name__ = true;
 haxe_io_Path.join = function(paths) {
 	var paths1 = paths.filter(function(s) {
@@ -141,6 +168,9 @@ haxe_io_Path.addTrailingSlash = function(path) {
 	} else {
 		return path;
 	}
+};
+haxe_io_Path.prototype = {
+	__class__: haxe_io_Path
 };
 var EReg = function(r,opt) {
 	this.r = new RegExp(r,opt.split("u").join(""));
@@ -411,22 +441,14 @@ var Events = function(context,terminal,output) {
 	this.context = context;
 	this.terminal = terminal;
 	Vscode.workspace.onDidOpenTextDocument(function(textDocument) {
-		var split = textDocument.fileName.split(".");
-		if(split.length == 2) {
-			var path = split[0];
-			var dirs = path.split("/");
-			if(dirs.length == 1) {
-				dirs = path.split("\\");
-			}
-			var filename = dirs[dirs.length - 1];
-			console.log(path);
-			var ext = split[1];
-			if((textDocument.getText() == null || textDocument.getText() == "") && ext == "hx") {
-				console.log("Haxe document");
-				var content = Parse.ParseHaxeClass(filename);
-				if(sys_FileSystem.exists(textDocument.fileName)) {
-					js_node_Fs.writeFileSync(textDocument.fileName,content);
-				}
+		var file = Parse.ReturnFile(textDocument.fileName);
+		var filename = file.file;
+		var ext = file.ext;
+		if((textDocument.getText() == null || textDocument.getText() == "") && ext == "hx") {
+			console.log("Haxe document");
+			var content = Parse.ParseHaxeClass(filename,textDocument.fileName);
+			if(sys_FileSystem.exists(textDocument.fileName)) {
+				js_node_Fs.writeFileSync(textDocument.fileName,content);
 			}
 		}
 	});
@@ -567,11 +589,39 @@ var Parse = function(output) {
 	this.output = output;
 };
 Parse.__name__ = true;
-Parse.ParseHaxeClass = function(name) {
-	var structure = js_node_Fs.readFileSync(Constants.classRoot + "/haxeClass.hx",{ encoding : "utf8"});
-	var parse = new haxe_Template(structure);
-	console.log("Class: " + name);
-	return parse.execute({ name : name});
+Parse.ParseHaxeClass = function(name,path) {
+	if(sys_FileSystem.exists(Constants.classRoot + "/haxeClass.hx")) {
+		var structure = js_node_Fs.readFileSync(Constants.classRoot + "/haxeClass.hx",{ encoding : "utf8"});
+		var parse = new haxe_Template(structure);
+		var data = { name : name, packageName : Parse.ParsePackage(path)};
+		return parse.execute(data);
+	}
+	return null;
+};
+Parse.ReturnFile = function(directory) {
+	var path = new haxe_io_Path(directory);
+	return path;
+};
+Parse.ParsePackage = function(directory) {
+	var path = new haxe_io_Path(directory);
+	var slash = "";
+	if(path.backslash) {
+		slash = "\\";
+	} else {
+		slash = "/";
+	}
+	var split = path.dir.split("source");
+	if(split.length >= 2) {
+		var file_location = StringTools.replace(split[1],slash,".");
+		if(file_location.charAt(0) == ".") {
+			file_location = file_location.substring(1);
+		}
+		if(file_location.charAt(file_location.length - 1) == ".") {
+			file_location = file_location.substring(0,file_location.length - 2);
+		}
+		return " " + file_location;
+	}
+	return "";
 };
 Parse.prototype = {
 	Project: function(name,project) {
@@ -631,6 +681,11 @@ Classes.FlixelState.__enum__ = Classes;
 Classes.FlixelSprite = ["FlixelSprite",2];
 Classes.FlixelSprite.toString = $estr;
 Classes.FlixelSprite.__enum__ = Classes;
+var StringTools = function() { };
+StringTools.__name__ = true;
+StringTools.replace = function(s,sub,by) {
+	return s.split(sub).join(by);
+};
 var haxe__$Template_TemplateExpr = { __ename__ : true, __constructs__ : ["OpVar","OpExpr","OpIf","OpStr","OpBlock","OpForeach","OpMacro"] };
 haxe__$Template_TemplateExpr.OpVar = function(v) { var $x = ["OpVar",0,v]; $x.__enum__ = haxe__$Template_TemplateExpr; $x.toString = $estr; return $x; };
 haxe__$Template_TemplateExpr.OpExpr = function(expr) { var $x = ["OpExpr",1,expr]; $x.__enum__ = haxe__$Template_TemplateExpr; $x.toString = $estr; return $x; };
