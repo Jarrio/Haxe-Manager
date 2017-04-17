@@ -20,9 +20,6 @@ class Main {
     
         new Events(context, terminal, output);
         new Commands(context, terminal, output);
-        
-
-
     }
 
     @:keep
