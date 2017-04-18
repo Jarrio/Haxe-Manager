@@ -18,15 +18,23 @@
             "title": "Open in a new window",
             "properties": {
                 "hxmanager.newWindow": {
-                    "description": "Decide the default configuration for opening a new window",
+                    "description": "Open new projects in a new window",
                     "type": "boolean",
-                    "default": false
+                    "default": true
                 },
 
                 "hxmanager.projectsRoot": {
                     "description": "The default location to save your projects",
                     "type": "string",
                     "default": null
+                },
+
+                "hxmanager.projectType": {
+                    "description": "Used internally to help aid class generation etc",
+                    "type":"string",
+                    "enum": [
+                        "Haxe", "Flixel"
+                    ]
                 }
             }
         },        

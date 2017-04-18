@@ -38,7 +38,15 @@ Commands.prototype = {
 			}
 			_gthis.parse.Project(input,projectType);
 			Vscode.window.showInformationMessage("Project " + input + " was created!");
+			var location = Vscode.workspace.getConfiguration("hxmanager").get("projectsRoot");
+			location = haxe_io_Path.join([location,input]);
+			_gthis.OpenProject(location);
 		});
+	}
+	,OpenProject: function(src) {
+		var uri = vscode_Uri.file(src);
+		var newWindow = Vscode.workspace.getConfiguration("hxmanager").get("newWindow");
+		Vscode.commands.executeCommand("vscode.openFolder",uri,newWindow);
 	}
 	,ClassHaxe: function() {
 	}
@@ -441,6 +449,23 @@ Constants.Compile = function(directories) {
 	}
 	return Constants.ApplySlash(haxe_io_Path.join([Constants.extensionRoot,compiled]));
 };
+var Projects = { __ename__ : true, __constructs__ : ["Haxe","Flixel"] };
+Projects.Haxe = ["Haxe",0];
+Projects.Haxe.toString = $estr;
+Projects.Haxe.__enum__ = Projects;
+Projects.Flixel = ["Flixel",1];
+Projects.Flixel.toString = $estr;
+Projects.Flixel.__enum__ = Projects;
+var Classes = { __ename__ : true, __constructs__ : ["Haxe","FlixelState","FlixelSprite"] };
+Classes.Haxe = ["Haxe",0];
+Classes.Haxe.toString = $estr;
+Classes.Haxe.__enum__ = Classes;
+Classes.FlixelState = ["FlixelState",1];
+Classes.FlixelState.toString = $estr;
+Classes.FlixelState.__enum__ = Classes;
+Classes.FlixelSprite = ["FlixelSprite",2];
+Classes.FlixelSprite.toString = $estr;
+Classes.FlixelSprite.__enum__ = Classes;
 var Events = function(context,terminal,output) {
 	this.output = output;
 	this.context = context;
@@ -699,23 +724,6 @@ Reflect.field = function(o,field) {
 		return null;
 	}
 };
-var Projects = { __ename__ : true, __constructs__ : ["Haxe","Flixel"] };
-Projects.Haxe = ["Haxe",0];
-Projects.Haxe.toString = $estr;
-Projects.Haxe.__enum__ = Projects;
-Projects.Flixel = ["Flixel",1];
-Projects.Flixel.toString = $estr;
-Projects.Flixel.__enum__ = Projects;
-var Classes = { __ename__ : true, __constructs__ : ["Haxe","FlixelState","FlixelSprite"] };
-Classes.Haxe = ["Haxe",0];
-Classes.Haxe.toString = $estr;
-Classes.Haxe.__enum__ = Classes;
-Classes.FlixelState = ["FlixelState",1];
-Classes.FlixelState.toString = $estr;
-Classes.FlixelState.__enum__ = Classes;
-Classes.FlixelSprite = ["FlixelSprite",2];
-Classes.FlixelSprite.toString = $estr;
-Classes.FlixelSprite.__enum__ = Classes;
 var StringTools = function() { };
 StringTools.__name__ = true;
 StringTools.replace = function(s,sub,by) {
@@ -1250,6 +1258,7 @@ sys_FileSystem.exists = function(path) {
 		return false;
 	}
 };
+var vscode_Uri = require("vscode").Uri;
 var $_, $fid = 0;
 function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; }
 String.prototype.__class__ = String;

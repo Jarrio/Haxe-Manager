@@ -1,9 +1,15 @@
 package;
 
-import Routes.Projects;
+import haxe.extern.Rest;
+import Enums.Projects;
 import haxe.Constraints.Function;
 import Vscode.*;
 import vscode.*;
+
+typedef OpenFolder = {
+    var uri:String;
+    var newWindow:Bool;
+}
 
 class Commands {
 
@@ -51,9 +57,19 @@ class Commands {
                 
                 this.parse.Project(input, projectType);
 
-                window.showInformationMessage('Project $input was created!');                
+                window.showInformationMessage('Project $input was created!');
+                var location = workspace.getConfiguration('hxmanager').get('projectsRoot');
+                location = haxe.io.Path.join([location, input]);
+                this.OpenProject(location);
+                // Vscode.commands.executeCommand("vscode.openFolder", rest);
             }
         );
+    }
+
+    public function OpenProject(src:String) {
+        var uri = vscode.Uri.file(src);
+        var newWindow = workspace.getConfiguration('hxmanager').get('newWindow');
+        Vscode.commands.executeCommand("vscode.openFolder", uri, newWindow);
     }
 
     public function ClassHaxe() {

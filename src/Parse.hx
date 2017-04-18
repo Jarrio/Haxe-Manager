@@ -11,8 +11,8 @@ import sys.io.File;
 import vscode.OutputChannel;
 import Vscode.*;
 
-import Routes.Classes;
-import Routes.Projects;
+import Enums.Classes;
+import Enums.Projects;
 
 import Constants;
 import Typedefs.Flixel;
