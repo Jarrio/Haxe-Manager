@@ -2,10 +2,10 @@
     "name": "hxmanager",
     "displayName": "Haxe Manager",
     "publisher": "jarrio",
+    "icon": "images/haxe-logo.png",
     "version": "0.0.3",
     "engines": {
-        "vscode": "^1.4.0",
-        "haxe": "^3.4.0"        
+        "vscode": "^1.4.0"
     },
     "activationEvents": [        
         "*"
