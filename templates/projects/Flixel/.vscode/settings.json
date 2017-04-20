@@ -29,6 +29,8 @@
 		["export/ios/haxe/release.hxml"]
 	],
 	"haxe.diagnosticsPathFilter": "${workspaceRoot}/source",
+	"hxmanager.projectType": ["Flixel"],
+
 	"search.exclude": {
 		"export/**/**.hx": true
 	}

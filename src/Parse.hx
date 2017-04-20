@@ -1,6 +1,8 @@
 package;
 
 
+import Typedefs.ClassTemplate;
+import vscode.QuickPickItem;
 import Typedefs.Structure;
 import haxe.Template;
 import haxe.io.Path;
@@ -18,6 +20,7 @@ import Constants;
 import Typedefs.Flixel;
 
 import js.node.Fs;
+import haxe.Json;
 
 
 class Parse {
@@ -107,27 +110,77 @@ class Parse {
         sys.io.File.saveContent(path, content);
     }
 
-    public static function ParseHaxeClass(name:String, path:String):String {
-        if (FileSystem.exists(Constants.classRoot + '/haxeClass.hx')) {
-            var structure = sys.io.File.getContent(Constants.classRoot + '/haxeClass.hx');
-            var parse = new Template(structure);
-            
-            var data = {
-                name: name,
-                packageName: ParsePackage(path)
-            };
+    public function GetClassTemplates(path:Path) {
+        var projectTypes:Array<String> = workspace.getConfiguration('hxmanager').get('projectType');
+        var detail = "";
 
-            return parse.execute(data);
+        for (name in projectTypes) {
+            detail += '$name, ';
         }
 
-        return null;
+        var items = [];
+        for (type in projectTypes) {
+            var file_location = Path.join([Constants.classRoot, type, 'templates.json']);
+
+            var parse_template = Json.parse(sys.io.File.getContent(file_location));
+            var templates:Array<ClassTemplate> = parse_template.templates;
+            
+            for (template in templates) {
+                items.push(this.CreateQuickPickItem(template.type, template.description, type));
+            }
+        }
+
+        var template = "";
+        var name = "";
+
+        window.showQuickPick(items, {matchOnDetail: true, ignoreFocusOut: true}).then(
+            function (resolve) {
+                if (resolve != null && resolve.label != "") {
+                    name = resolve.label;
+                    var name = resolve.label;
+                    var type = resolve.detail;
+
+                    template = Path.join([Constants.classRoot, type, '$name.hx']);
+                    var contents = this.ParseTemplate(template, path.toString());
+
+                    sys.io.File.saveContent(path.toString(), contents);
+                }
+            },
+
+            function (reject) {
+                trace('Rejected: $reject');
+            }
+        ); 
     }
 
-    public static function ReturnFile(directory:String):Path {
-        var path = new Path(directory);
-        
+    public function ParseTemplate(source:String, destination:String) {
+        if (FileSystem.exists(source) && source != null) {
+            var path_data = new Path(destination);
 
-        return path;
+            var contents = sys.io.File.getContent(source);        
+
+            var template = new Template(contents);  
+            var getpackage = ParsePackage(destination);
+
+            var contents = {
+                name: path_data.file.split('.')[0],
+                location: getpackage
+            };
+            
+            return template.execute(contents);
+        }
+        
+        return " ";
+    }
+
+    public function CreateQuickPickItem(label:String, description:String, detail:String) {
+        var item:QuickPickItem = {
+            label: label,
+            description: description,
+            detail: detail
+        };
+
+        return item;
     }
 
     public static function ParsePackage(directory:String):String {

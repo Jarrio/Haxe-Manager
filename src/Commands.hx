@@ -1,5 +1,6 @@
 package;
 
+import Enums.Classes;
 import haxe.extern.Rest;
 import Enums.Projects;
 import haxe.Constraints.Function;
@@ -47,6 +48,17 @@ class Commands {
         this.ShowInput(Projects.Flixel);
     }
 
+    private function CreateClass(classType:Classes) {
+        window.showInputBox(this.InputBoxProps()).then(
+            function (input) {
+                if (input == null || input == "" || input == "undefined") {
+                    window.showInformationMessage("You need to enter a class name!");
+                    return;
+                }              
+            }
+        );
+    }
+
     public function ShowInput(projectType:Projects) {
         window.showInputBox(this.InputBoxProps()).then(
             function (input) {
@@ -61,11 +73,11 @@ class Commands {
                 var location = workspace.getConfiguration('hxmanager').get('projectsRoot');
                 location = haxe.io.Path.join([location, input]);
                 this.OpenProject(location);
-                // Vscode.commands.executeCommand("vscode.openFolder", rest);
             }
         );
     }
 
+    
     public function OpenProject(src:String) {
         var uri = vscode.Uri.file(src);
         var newWindow = workspace.getConfiguration('hxmanager').get('newWindow');
@@ -79,7 +91,8 @@ class Commands {
     public function InputBoxProps():InputBoxOptions {
         return {
             prompt: "Project Name",
-            placeHolder: "Type a name for the project"
+            placeHolder: "Type a name for the project",
+            
         };
     }
 }

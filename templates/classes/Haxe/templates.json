@@ -1,0 +1,26 @@
+{
+    "name": "Haxe",
+    "description": "File templates which are usable through-out haxe",
+    "templates": [
+        {
+            "type": "Abstract",
+            "description": ""
+        },
+        {
+            "type": "Class",
+            "description": ""
+        },
+        {
+            "type": "Enum",
+            "description": ""
+        },
+        {
+            "type": "Interface",
+            "description": ""
+        },
+        {
+            "type": "Typedef",
+            "description": ""
+        }
+    ]
+}

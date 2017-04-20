@@ -29,6 +29,14 @@ Commands.prototype = {
 	,CreateHaxeFlixelProject: function() {
 		this.ShowInput(Projects.Flixel);
 	}
+	,CreateClass: function(classType) {
+		Vscode.window.showInputBox(this.InputBoxProps()).then(function(input) {
+			if(input == null || input == "" || input == "undefined") {
+				Vscode.window.showInformationMessage("You need to enter a class name!");
+				return;
+			}
+		});
+	}
 	,ShowInput: function(projectType) {
 		var _gthis = this;
 		Vscode.window.showInputBox(this.InputBoxProps()).then(function(input) {
@@ -183,7 +191,10 @@ haxe_io_Path.addTrailingSlash = function(path) {
 	}
 };
 haxe_io_Path.prototype = {
-	__class__: haxe_io_Path
+	toString: function() {
+		return (this.dir == null ? "" : this.dir + (this.backslash ? "\\" : "/")) + this.file + (this.ext == null ? "" : "." + this.ext);
+	}
+	,__class__: haxe_io_Path
 };
 var EReg = function(r,opt) {
 	this.r = new RegExp(r,opt.split("u").join(""));
@@ -467,25 +478,28 @@ Classes.FlixelSprite = ["FlixelSprite",2];
 Classes.FlixelSprite.toString = $estr;
 Classes.FlixelSprite.__enum__ = Classes;
 var Events = function(context,terminal,output) {
+	var _gthis = this;
 	this.output = output;
 	this.context = context;
 	this.terminal = terminal;
-	Vscode.workspace.onDidOpenTextDocument(function(textDocument) {
-		var file = Parse.ReturnFile(textDocument.fileName);
-		var filename = file.file;
-		var ext = file.ext;
-		if((textDocument.getText() == null || textDocument.getText() == "") && ext == "hx") {
-			console.log("Haxe document");
-			var content = Parse.ParseHaxeClass(filename,textDocument.fileName);
-			if(sys_FileSystem.exists(textDocument.fileName)) {
-				js_node_Fs.writeFileSync(textDocument.fileName,content);
-			}
-		}
+	this.parse = new Parse(output);
+	var watcher = Vscode.workspace.createFileSystemWatcher("**/*.hx");
+	watcher.onDidCreate(function(uri) {
+		Vscode.commands.getCommands(true).then(function(resolve) {
+			var path = new haxe_io_Path(uri.fsPath);
+			var filename = path.file;
+			_gthis.parse.GetClassTemplates(path);
+		},function(reject) {
+			console.log("Reject");
+		});
 	});
 };
 Events.__name__ = true;
 Events.prototype = {
-	__class__: Events
+	InputBoxProps: function() {
+		return { prompt : "Class Name", placeHolder : "Type a name for the class"};
+	}
+	,__class__: Events
 };
 var Helpers = function() { };
 Helpers.__name__ = true;
@@ -620,19 +634,6 @@ var Parse = function(output) {
 	this.output = output;
 };
 Parse.__name__ = true;
-Parse.ParseHaxeClass = function(name,path) {
-	if(sys_FileSystem.exists(Constants.classRoot + "/haxeClass.hx")) {
-		var structure = js_node_Fs.readFileSync(Constants.classRoot + "/haxeClass.hx",{ encoding : "utf8"});
-		var parse = new haxe_Template(structure);
-		var data = { name : name, packageName : Parse.ParsePackage(path)};
-		return parse.execute(data);
-	}
-	return null;
-};
-Parse.ReturnFile = function(directory) {
-	var path = new haxe_io_Path(directory);
-	return path;
-};
 Parse.ParsePackage = function(directory) {
 	var path = new haxe_io_Path(directory);
 	var slash = "";
@@ -712,6 +713,62 @@ Parse.prototype = {
 	}
 	,SetFileContents: function(path,content) {
 		js_node_Fs.writeFileSync(path,content);
+	}
+	,GetClassTemplates: function(path) {
+		var _gthis = this;
+		var projectTypes = Vscode.workspace.getConfiguration("hxmanager").get("projectType");
+		var detail = "";
+		var _g = 0;
+		while(_g < projectTypes.length) {
+			var name = projectTypes[_g];
+			++_g;
+			detail += "" + name + ", ";
+		}
+		var items = [];
+		var _g1 = 0;
+		while(_g1 < projectTypes.length) {
+			var type = projectTypes[_g1];
+			++_g1;
+			var file_location = haxe_io_Path.join([Constants.classRoot,type,"templates.json"]);
+			var parse_template = JSON.parse(js_node_Fs.readFileSync(file_location,{ encoding : "utf8"}));
+			var templates = parse_template.templates;
+			var _g11 = 0;
+			while(_g11 < templates.length) {
+				var template = templates[_g11];
+				++_g11;
+				items.push(this.CreateQuickPickItem(template.type,template.description,type));
+			}
+		}
+		var template1 = "";
+		var name1 = "";
+		Vscode.window.showQuickPick(items,{ matchOnDetail : true, ignoreFocusOut : true}).then(function(resolve) {
+			if(resolve != null && resolve.label != "") {
+				name1 = resolve.label;
+				var name2 = resolve.label;
+				var type1 = resolve.detail;
+				template1 = haxe_io_Path.join([Constants.classRoot,type1,"" + name2 + ".hx"]);
+				var contents = path.toString();
+				var contents1 = _gthis.ParseTemplate(template1,contents);
+				js_node_Fs.writeFileSync(path.toString(),contents1);
+			}
+		},function(reject) {
+			console.log("Rejected: " + reject);
+		});
+	}
+	,ParseTemplate: function(source,destination) {
+		if(sys_FileSystem.exists(source) && source != null) {
+			var path_data = new haxe_io_Path(destination);
+			var contents = js_node_Fs.readFileSync(source,{ encoding : "utf8"});
+			var template = new haxe_Template(contents);
+			var getpackage = Parse.ParsePackage(destination);
+			var contents1 = { name : path_data.file.split(".")[0], location : getpackage};
+			return template.execute(contents1);
+		}
+		return " ";
+	}
+	,CreateQuickPickItem: function(label,description,detail) {
+		var item = { label : label, description : description, detail : detail};
+		return item;
 	}
 	,__class__: Parse
 };
@@ -1276,7 +1333,7 @@ js_Boot.__toStr = ({ }).toString;
 Constants.extensionRoot = Vscode.extensions.getExtension("jarrio.hxmanager").extensionPath;
 Constants.cacheRoot = Constants.Compile(["cache"]);
 Constants.templatesRoot = Constants.Compile(["templates"]);
-Constants.classRoot = Constants.Compile(["templates","class"]);
+Constants.classRoot = Constants.Compile(["templates","classes"]);
 Constants.projectHaxeRoot = Constants.Compile(["templates","Haxe"]);
 Constants.projectHaxeflixelRoot = Constants.Compile(["templates","Flixel"]);
 haxe_Template.splitter = new EReg("(::[A-Za-z0-9_ ()&|!+=/><*.\"-]+::|\\$\\$([A-Za-z0-9_-]+)\\()","");

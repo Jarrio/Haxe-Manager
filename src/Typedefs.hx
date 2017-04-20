@@ -10,3 +10,8 @@ typedef Structure = {
     var files:Array<String>;
     var directories:Array<String>;
 }
+
+typedef ClassTemplate = {
+    var type:String;
+    var description:String;
+}

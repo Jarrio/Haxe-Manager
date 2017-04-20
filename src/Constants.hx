@@ -11,7 +11,7 @@ class Constants {
 
     public static var templatesRoot:String = Compile(["templates"]);
     
-    public static var classRoot:String = Compile(["templates", "class"]);
+    public static var classRoot:String = Compile(["templates", "classes"]);
 
     public static var projectHaxeRoot:String = Compile(["templates", "Haxe"]);
 

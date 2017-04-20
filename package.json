@@ -31,10 +31,11 @@
 
                 "hxmanager.projectType": {
                     "description": "Used internally to help aid class generation etc",
-                    "type":"string",
+                    "type":"array",
+                    "default": ["Haxe"],
                     "enum": [
                         "Haxe", "Flixel"
-                    ]
+                    ]                    
                 }
             }
         },        

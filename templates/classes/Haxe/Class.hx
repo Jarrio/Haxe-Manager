@@ -1,4 +1,4 @@
-package::packageName::;
+package::location::;
 
 class ::name:: {
     public function new() {

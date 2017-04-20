@@ -12,7 +12,7 @@
 
 	"haxe.diagnosticsPathFilter": "${workspaceRoot}/source",
 	
-	"hxmanager.projectType": "Haxe",
+	"hxmanager.projectType": ["Haxe"],
 
     "search.exclude": {
 		"export/**/**.hx": true

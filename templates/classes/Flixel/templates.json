@@ -1,0 +1,14 @@
+{
+    "name": "Flixel",
+    "description": "File templates which are usable only when working with the haxe library HaxeFlixel",
+    "templates": [
+        {
+            "type": "FlxSprite",
+            "description": ""
+        },
+        {
+            "type": "FlxState",
+            "description": ""
+        }
+    ]
+}

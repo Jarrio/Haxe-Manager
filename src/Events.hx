@@ -1,5 +1,6 @@
 package;
 
+import Enums.Classes;
 import sys.FileSystem;
 import vscode.*;
 import Vscode.*;
@@ -18,23 +19,32 @@ class Events {
         this.context = context;
         this.terminal = terminal;
 
+        this.parse = new Parse(output);
         
-        
-        workspace.onDidOpenTextDocument(function(textDocument) {
+        var watcher = workspace.createFileSystemWatcher("**/*.hx");
+        watcher.onDidCreate(
+            function (uri) {
+                
+                Vscode.commands.getCommands(true).then(                    
+                    function (resolve) {
+                        var path = new haxe.io.Path(uri.fsPath);
+                        var filename = path.file;
 
-            var file = Parse.ReturnFile(textDocument.fileName);
-            var filename = file.file;
-            var ext = file.ext;
-
-            if ((textDocument.getText() == null || textDocument.getText() == "") && ext == "hx") {
-                trace("Haxe document");
-                var content = Parse.ParseHaxeClass(filename, textDocument.fileName);
-                if (FileSystem.exists(textDocument.fileName)) {
-                    File.saveContent(textDocument.fileName, content);
-                }
+                        this.parse.GetClassTemplates(path);
+                                            
+                    },
+                    function (reject) {
+                        trace("Reject");
+                    }
+                );
             }
-            
+        );              
+    }
 
-        });        
+    public function InputBoxProps():InputBoxOptions {
+        return {
+            prompt: "Class Name",
+            placeHolder: "Type a name for the class"
+        };
     }
 }

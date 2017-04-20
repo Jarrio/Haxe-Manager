@@ -1,0 +1,5 @@
+package::location::;
+
+enum ::name:: {
+    
+}
