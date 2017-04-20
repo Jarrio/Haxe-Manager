@@ -6,7 +6,7 @@ import vscode.*;
 class Main {
 
     function new(context:ExtensionContext) {
-        var terminal = window.createTerminal("HaxeManager");
+
         var output = window.createOutputChannel("HaxeManager");        
         
         var projectsRoot = workspace.getConfiguration("hxmanager").get("projectsRoot");
@@ -18,8 +18,8 @@ class Main {
             output.show(true);
         }
     
-        new Events(context, terminal, output);
-        new Commands(context, terminal, output);
+        new Events(context, output);
+        new Commands(context, output);
     }
 
     @:keep

@@ -8,10 +8,9 @@ function $extend(from, fields) {
 	if( fields.toString !== Object.prototype.toString ) proto.toString = fields.toString;
 	return proto;
 }
-var Commands = function(context,terminal,output) {
+var Commands = function(context,output) {
 	this.output = output;
 	this.context = context;
-	this.terminal = terminal;
 	this.parse = new Parse(output);
 	this.project_root = Vscode.workspace.getConfiguration("hxmanager").get("projectRoot");
 	this.registerCommand("CreateHaxeProject",$bind(this,this.CreateHaxeProject));
@@ -477,21 +476,21 @@ Classes.FlixelState.__enum__ = Classes;
 Classes.FlixelSprite = ["FlixelSprite",2];
 Classes.FlixelSprite.toString = $estr;
 Classes.FlixelSprite.__enum__ = Classes;
-var Events = function(context,terminal,output) {
+var Events = function(context,output) {
 	var _gthis = this;
 	this.output = output;
 	this.context = context;
-	this.terminal = terminal;
 	this.parse = new Parse(output);
 	var watcher = Vscode.workspace.createFileSystemWatcher("**/*.hx");
 	watcher.onDidCreate(function(uri) {
-		Vscode.commands.getCommands(true).then(function(resolve) {
-			var path = new haxe_io_Path(uri.fsPath);
-			var filename = path.file;
-			_gthis.parse.GetClassTemplates(path);
-		},function(reject) {
-			console.log("Reject");
-		});
+		if(js_node_Fs.readFileSync(uri.fsPath,{ encoding : "utf8"}) == "") {
+			Vscode.commands.getCommands(true).then(function(resolve) {
+				var path = new haxe_io_Path(uri.fsPath);
+				_gthis.parse.GetClassTemplates(path);
+			},function(reject) {
+				console.log("Reject");
+			});
+		}
 	});
 };
 Events.__name__ = true;
@@ -610,7 +609,6 @@ _$List_ListNode.prototype = {
 	__class__: _$List_ListNode
 };
 var Main = function(context) {
-	var terminal = Vscode.window.createTerminal("HaxeManager");
 	var output = Vscode.window.createOutputChannel("HaxeManager");
 	var projectsRoot = Vscode.workspace.getConfiguration("hxmanager").get("projectsRoot");
 	if(projectsRoot == null) {
@@ -618,8 +616,8 @@ var Main = function(context) {
 		output.appendLine("ERROR: A root directory to store projects is required");
 		output.show(true);
 	}
-	new Events(context,terminal,output);
-	new Commands(context,terminal,output);
+	new Events(context,output);
+	new Commands(context,output);
 };
 Main.__name__ = true;
 Main.main = $hx_exports["activate"] = function(context) {

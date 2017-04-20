@@ -15,17 +15,15 @@ typedef OpenFolder = {
 class Commands {
 
     private var parse:Parse;        
-    private var terminal:Terminal;
     private var output:OutputChannel;
     private var context:ExtensionContext;
 
     private var project_root:String;
 
-    public function new(context:ExtensionContext, terminal:Terminal, output:OutputChannel) {
+    public function new(context:ExtensionContext, output:OutputChannel) {
         
         this.output = output;
-        this.context = context;
-        this.terminal = terminal;        
+        this.context = context;  
         this.parse = new Parse(output);
 
         this.project_root = workspace.getConfiguration("hxmanager").get("projectRoot");
