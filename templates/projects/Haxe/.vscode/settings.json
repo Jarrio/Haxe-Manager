@@ -10,11 +10,11 @@
 		["build.hxml"]
 	],
 
-	"haxe.diagnosticsPathFilter": "${workspaceRoot}/source",
-	
-	"hxmanager.projectType": ["Haxe"],
+	"haxe.diagnosticsPathFilter": "${workspaceRoot}/source",	
 
     "search.exclude": {
 		"export/**/**.hx": true
-	}
+	},
+
+	"hxmanager.projectType": ["Haxe"]
 }
