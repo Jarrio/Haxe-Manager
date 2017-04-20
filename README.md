@@ -6,6 +6,6 @@ If anybody would like to contribute project templates, I am using Haxe's built i
 
 For now this just helps with boilerplate code :)
 
-Go [Here](https://github.com/Jarrio/Haxe-Manager/blob/master/Features.md) for a complete feature list
+Go [here](https://github.com/Jarrio/Haxe-Manager/blob/master/Features.md) for a complete feature list
 
 *Please note: This is still in early development and I will clean up code and make changes as I go through iterations so bare with me*
