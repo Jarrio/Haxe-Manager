@@ -2,6 +2,10 @@
     "name": "hxmanager",
     "displayName": "Haxe Manager",
     "publisher": "jarrio",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/Jarrio/Haxe-Manager.git"
+    },
     "icon": "images/haxe-logo.png",
     "version": "0.0.3",
     "engines": {
