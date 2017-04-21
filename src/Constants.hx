@@ -7,31 +7,17 @@ class Constants {
     
     public static var extensionRoot:String = Vscode.extensions.getExtension('jarrio.hxmanager').extensionPath;
 
-    public static var cacheRoot:String = Compile(["cache"]);
+    public static var templatesRoot:String = Join([extensionRoot, "templates"]);
 
-    public static var templatesRoot:String = Compile(["templates"]);
-    
-    public static var classRoot:String = Compile(["templates", "classes"]);
+    public static var classRoot:String = Join([templatesRoot, "classes"]);
 
-    public static var projectHaxeRoot:String = Compile(["templates", "Haxe"]);
+    public static var projectsRoot:String =  Join([templatesRoot, "projects"]);
 
-    public static var projectHaxeflixelRoot:String = Compile(["templates", "Flixel"]);
+    public static function Join(paths:Array<String>) {
+        return ApplySlash(Path.join(paths));
+    }
 
-    
     public static function ApplySlash(directory:String):String {
         return Path.addTrailingSlash(directory);
-    }
-
-    public static function JoinPaths(paths:Array<String>) {
-        return Path.join(paths);
-    }
-
-    public static function Compile(directories:Array<String>) {
-        var compiled = "";
-        for (directory in directories) {
-            compiled += ApplySlash(directory);
-        }
-
-        return ApplySlash(Path.join([extensionRoot, compiled]));
     }
 }

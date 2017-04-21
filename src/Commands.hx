@@ -69,8 +69,9 @@ class Commands {
 
                 window.showInformationMessage('Project $input was created!');
                 var location = workspace.getConfiguration('hxmanager').get('projectsRoot');
-                location = haxe.io.Path.join([location, input]);
-                this.OpenProject(location);
+
+                var path = Constants.Join([location, projectType.getName(), input]);
+                this.OpenProject(path);
             }
         );
     }

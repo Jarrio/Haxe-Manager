@@ -42,64 +42,52 @@ class Parse {
             return;
         }
 
-        switch (project) {
-            case Projects.Haxe:
-                this.ParseHaxe(name);
-            case Projects.Flixel:
-                this.ParseFlixel(name);
-        }
+        this.ParseProjects(name, project);
     }
 
-    public function ParseHaxe(name:String) {
-        var projectTemplateSrc = Constants.projectHaxeRoot;
+    public function ParseProjects(name:String, project:Projects) {
+        var type = project.getName();
 
-        if (!FileSystem.isDirectory(projectTemplateSrc)) {
-            this.output.appendLine("ERROR: Can't find Haxe Project Template at {"+projectTemplateSrc+"}");
-            return; 
-        }
+        var projects = Constants.Join([Constants.projectsRoot, type]);
         
-        var location = this.save_location + '/' + this.projectType;
-        var destination = this.save_location + '/' + name;
-
-        this.MoveDirectory(projectTemplateSrc, this.save_location);
-        this.RenameDirectory(location, destination);
-    }
-
-    public function ParseFlixel(name:String) {
-        var dir = Constants.projectHaxeflixelRoot;
-
-        if (!FileSystem.isDirectory(dir)) {
-            this.output.appendLine("ERROR: Can't find HaxeFlixel Project Template at {"+dir+"}");
-            return; 
+        var rootProjects = Constants.Join([this.save_location, type]);
+        
+        if (!FileSystem.exists(rootProjects)) {
+            FileSystem.createDirectory(rootProjects);
         }
 
-        var location = this.save_location + '/' + this.projectType;
-        var destination = this.save_location + '/' + name;
+        var rename_input= Constants.Join([this.save_location, type, type]);
+        var rename_output = Constants.Join([this.save_location, type, name]);
 
-        this.MoveDirectory(dir, this.save_location);
-        this.RenameDirectory(location, destination);
+        this.MoveDirectory(projects, rootProjects);
+        this.RenameDirectory(rename_input, rename_output);
 
+        //Temporary location for flixel project parsing
 
-        var project_file = this.GetFileContents(destination + '/Project.xml');
-        var parse = new Template(project_file);
-        
-        var data:Flixel = {
-            name: name,
-            height: 500,
-            width: 500
-        };
-        
-        project_file = parse.execute(data);
+        var file_path = Constants.Join([rename_output, 'Project.xml']);
+        if (FileSystem.exists(file_path)) {
+            var project_file = this.GetFileContents(file_path);
+            var parse = new Template(project_file);
+            
+            var data:Flixel = {
+                name: name,
+                height: 500,
+                width: 500
+            };
+            
+            project_file = parse.execute(data);
 
-        this.SetFileContents(destination + '/Project.xml', project_file);        
+            this.SetFileContents(file_path, project_file);
+        }
+
     }
 
-    public function RenameDirectory(original:String, destination:String):Void {        
+    public function RenameDirectory(original:String, destination:String):Void {           
         FileSystem.rename(original, destination);        
     }
 
-    public function MoveDirectory(original:String, destination:String):Void {        
-        Helpers.copyFolderRecursiveSync(original, destination);           
+    public function MoveDirectory(original:String, destination:String):Void {       
+        Helpers.copyFolderRecursiveSync(original, destination);    
     }
 
     public function GetFileContents(path:String):String {

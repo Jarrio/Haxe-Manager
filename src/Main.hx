@@ -25,6 +25,7 @@ class Main {
     @:keep
     @:expose("activate")
     static function main(context:ExtensionContext) {
+        haxe.Log.trace = haxe.Log.trace;
         new Main(context);
     }
 

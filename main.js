@@ -46,8 +46,8 @@ Commands.prototype = {
 			_gthis.parse.Project(input,projectType);
 			Vscode.window.showInformationMessage("Project " + input + " was created!");
 			var location = Vscode.workspace.getConfiguration("hxmanager").get("projectsRoot");
-			location = haxe_io_Path.join([location,input]);
-			_gthis.OpenProject(location);
+			var path = Constants.Join([location,projectType[0],input]);
+			_gthis.OpenProject(path);
 		});
 	}
 	,OpenProject: function(src) {
@@ -254,6 +254,35 @@ Std.parseInt = function(x) {
 };
 var js_Boot = function() { };
 js_Boot.__name__ = true;
+js_Boot.__unhtml = function(s) {
+	return s.split("&").join("&amp;").split("<").join("&lt;").split(">").join("&gt;");
+};
+js_Boot.__trace = function(v,i) {
+	var msg = i != null ? i.fileName + ":" + i.lineNumber + ": " : "";
+	msg += js_Boot.__string_rec(v,"");
+	if(i != null && i.customParams != null) {
+		var _g = 0;
+		var _g1 = i.customParams;
+		while(_g < _g1.length) {
+			var v1 = _g1[_g];
+			++_g;
+			msg += "," + js_Boot.__string_rec(v1,"");
+		}
+	}
+	var d;
+	var tmp;
+	if(typeof(document) != "undefined") {
+		d = document.getElementById("haxe:trace");
+		tmp = d != null;
+	} else {
+		tmp = false;
+	}
+	if(tmp) {
+		d.innerHTML += js_Boot.__unhtml(msg) + "<br/>";
+	} else if(typeof console != "undefined" && console.log != null) {
+		console.log(msg);
+	}
+};
 js_Boot.getClass = function(o) {
 	if((o instanceof Array) && o.__enum__ == null) {
 		return Array;
@@ -443,21 +472,11 @@ js_Boot.__resolveNativeClass = function(name) {
 var Vscode = require("vscode");
 var Constants = function() { };
 Constants.__name__ = true;
+Constants.Join = function(paths) {
+	return Constants.ApplySlash(haxe_io_Path.join(paths));
+};
 Constants.ApplySlash = function(directory) {
 	return haxe_io_Path.addTrailingSlash(directory);
-};
-Constants.JoinPaths = function(paths) {
-	return haxe_io_Path.join(paths);
-};
-Constants.Compile = function(directories) {
-	var compiled = "";
-	var _g = 0;
-	while(_g < directories.length) {
-		var directory = directories[_g];
-		++_g;
-		compiled += Constants.ApplySlash(directory);
-	}
-	return Constants.ApplySlash(haxe_io_Path.join([Constants.extensionRoot,compiled]));
 };
 var Projects = { __ename__ : true, __constructs__ : ["Haxe","Flixel"] };
 Projects.Haxe = ["Haxe",0];
@@ -488,7 +507,7 @@ var Events = function(context,output) {
 				var path = new haxe_io_Path(uri.fsPath);
 				_gthis.parse.GetClassTemplates(path);
 			},function(reject) {
-				console.log("Reject");
+				haxe_Log.trace("Reject",{ fileName : "Events.hx", lineNumber : 34, className : "Events", methodName : "new"});
 			});
 		}
 	});
@@ -621,6 +640,7 @@ var Main = function(context) {
 };
 Main.__name__ = true;
 Main.main = $hx_exports["activate"] = function(context) {
+	haxe_Log.trace = haxe_Log.trace;
 	new Main(context);
 };
 Main.prototype = {
@@ -664,41 +684,27 @@ Parse.prototype = {
 			this.output.appendLine("ERROR: Projects directory is not set or does not exist");
 			return;
 		}
-		switch(project[1]) {
-		case 0:
-			this.ParseHaxe(name);
-			break;
-		case 1:
-			this.ParseFlixel(name);
-			break;
-		}
+		this.ParseProjects(name,project);
 	}
-	,ParseHaxe: function(name) {
-		var projectTemplateSrc = Constants.projectHaxeRoot;
-		if(!js_node_Fs.statSync(projectTemplateSrc).isDirectory()) {
-			this.output.appendLine("ERROR: Can't find Haxe Project Template at {" + projectTemplateSrc + "}");
-			return;
+	,ParseProjects: function(name,project) {
+		var type = project[0];
+		var projects = Constants.Join([Constants.projectsRoot,type]);
+		var rootProjects = Constants.Join([this.save_location,type]);
+		if(!sys_FileSystem.exists(rootProjects)) {
+			sys_FileSystem.createDirectory(rootProjects);
 		}
-		var location = this.save_location + "/" + Std.string(this.projectType);
-		var destination = this.save_location + "/" + name;
-		this.MoveDirectory(projectTemplateSrc,this.save_location);
-		this.RenameDirectory(location,destination);
-	}
-	,ParseFlixel: function(name) {
-		var dir = Constants.projectHaxeflixelRoot;
-		if(!js_node_Fs.statSync(dir).isDirectory()) {
-			this.output.appendLine("ERROR: Can't find HaxeFlixel Project Template at {" + dir + "}");
-			return;
+		var rename_input = Constants.Join([this.save_location,type,type]);
+		var rename_output = Constants.Join([this.save_location,type,name]);
+		this.MoveDirectory(projects,rootProjects);
+		this.RenameDirectory(rename_input,rename_output);
+		var file_path = Constants.Join([rename_output,"Project.xml"]);
+		if(sys_FileSystem.exists(file_path)) {
+			var project_file = this.GetFileContents(file_path);
+			var parse = new haxe_Template(project_file);
+			var data = { name : name, height : 500, width : 500};
+			project_file = parse.execute(data);
+			this.SetFileContents(file_path,project_file);
 		}
-		var location = this.save_location + "/" + Std.string(this.projectType);
-		var destination = this.save_location + "/" + name;
-		this.MoveDirectory(dir,this.save_location);
-		this.RenameDirectory(location,destination);
-		var project_file = this.GetFileContents(destination + "/Project.xml");
-		var parse = new haxe_Template(project_file);
-		var data = { name : name, height : 500, width : 500};
-		project_file = parse.execute(data);
-		this.SetFileContents(destination + "/Project.xml",project_file);
 	}
 	,RenameDirectory: function(original,destination) {
 		js_node_Fs.renameSync(original,destination);
@@ -750,7 +756,7 @@ Parse.prototype = {
 				js_node_Fs.writeFileSync(path.toString(),contents1);
 			}
 		},function(reject) {
-			console.log("Rejected: " + reject);
+			haxe_Log.trace("Rejected: " + reject,{ fileName : "Parse.hx", lineNumber : 139, className : "Parse", methodName : "GetClassTemplates"});
 		});
 	}
 	,ParseTemplate: function(source,destination) {
@@ -783,6 +789,11 @@ var StringTools = function() { };
 StringTools.__name__ = true;
 StringTools.replace = function(s,sub,by) {
 	return s.split(sub).join(by);
+};
+var haxe_Log = function() { };
+haxe_Log.__name__ = true;
+haxe_Log.trace = function(v,infos) {
+	js_Boot.__trace(v,infos);
 };
 var haxe__$Template_TemplateExpr = { __ename__ : true, __constructs__ : ["OpVar","OpExpr","OpIf","OpStr","OpBlock","OpForeach","OpMacro"] };
 haxe__$Template_TemplateExpr.OpVar = function(v) { var $x = ["OpVar",0,v]; $x.__enum__ = haxe__$Template_TemplateExpr; $x.toString = $estr; return $x; };
@@ -1313,6 +1324,27 @@ sys_FileSystem.exists = function(path) {
 		return false;
 	}
 };
+sys_FileSystem.createDirectory = function(path) {
+	try {
+		js_node_Fs.mkdirSync(path);
+	} catch( e ) {
+		if (e instanceof js__$Boot_HaxeError) e = e.val;
+		if(e.code == "ENOENT") {
+			sys_FileSystem.createDirectory(js_node_Path.dirname(path));
+			js_node_Fs.mkdirSync(path);
+		} else {
+			var stat;
+			try {
+				stat = js_node_Fs.statSync(path);
+			} catch( _ ) {
+				throw e;
+			}
+			if(!stat.isDirectory()) {
+				throw e;
+			}
+		}
+	}
+};
 var vscode_Uri = require("vscode").Uri;
 var $_, $fid = 0;
 function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; }
@@ -1329,11 +1361,9 @@ var Class = { __name__ : ["Class"]};
 var Enum = { };
 js_Boot.__toStr = ({ }).toString;
 Constants.extensionRoot = Vscode.extensions.getExtension("jarrio.hxmanager").extensionPath;
-Constants.cacheRoot = Constants.Compile(["cache"]);
-Constants.templatesRoot = Constants.Compile(["templates"]);
-Constants.classRoot = Constants.Compile(["templates","classes"]);
-Constants.projectHaxeRoot = Constants.Compile(["templates","Haxe"]);
-Constants.projectHaxeflixelRoot = Constants.Compile(["templates","Flixel"]);
+Constants.templatesRoot = Constants.Join([Constants.extensionRoot,"templates"]);
+Constants.classRoot = Constants.Join([Constants.templatesRoot,"classes"]);
+Constants.projectsRoot = Constants.Join([Constants.templatesRoot,"projects"]);
 haxe_Template.splitter = new EReg("(::[A-Za-z0-9_ ()&|!+=/><*.\"-]+::|\\$\\$([A-Za-z0-9_-]+)\\()","");
 haxe_Template.expr_splitter = new EReg("(\\(|\\)|[ \r\n\t]*\"[^\"]*\"[ \r\n\t]*|[!+=/><*.&|-]+)","");
 haxe_Template.expr_trim = new EReg("^[ ]*([^ ]+)[ ]*$","");
