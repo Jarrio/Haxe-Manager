@@ -9,3 +9,11 @@ For now this just helps with boilerplate code :)
 Go [here](https://github.com/Jarrio/Haxe-Manager/blob/master/Features.md) for a complete feature list
 
 *Please note: This is still in early development and I will clean up code and make changes as I go through iterations so bare with me*
+
+You can copy this repo to the `vscode extensions` folder to install
+or 
+Install via downloading the `hxmanager-0.0.3.vsix` file and then installing from within vscode.
+
+*I will post to the marketplace when I can figure out how to fix the issues I'm having with uploading to it*
+
+
