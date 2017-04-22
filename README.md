@@ -12,7 +12,7 @@ Go [here](https://github.com/Jarrio/Haxe-Manager/blob/master/Features.md) for a 
 
 You can copy this repo to the `vscode extensions` folder to install
 or 
-Install via downloading the `hxmanager-0.0.3.vsix` file and then installing from within vscode.
+Install via the `hxmanager-*.*.*.vsix` file and then installing from within vscode ([Instructions](https://code.visualstudio.com/docs/editor/extension-gallery#_install-from-a-vsix))
 
 *I will post to the marketplace when I can figure out how to fix the issues I'm having with uploading to it*
 
