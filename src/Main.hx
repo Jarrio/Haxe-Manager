@@ -12,8 +12,8 @@ class Main {
         var projectsRoot = workspace.getConfiguration("hxmanager").get("projectsRoot");
 
         if (projectsRoot == null) {
-            window.showErrorMessage("To use Haxe Manager you must configure a projects root in your settings.json file");
-            output.appendLine("ERROR: A root directory to store projects is required");
+            window.showWarningMessage("To create projects from haxe-manager you must configure root directory in your (global) settings.json file");
+            output.appendLine("WARNING: Can't create projects without defining a source");
 
             output.show(true);
         }
@@ -21,6 +21,7 @@ class Main {
         new Events(context, output);
         new Commands(context, output);
     }
+
 
     @:keep
     @:expose("activate")

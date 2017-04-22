@@ -19,7 +19,6 @@ import Enums.Projects;
 import Constants;
 import Typedefs.Flixel;
 
-import js.node.Fs;
 import haxe.Json;
 
 
@@ -98,7 +97,7 @@ class Parse {
         sys.io.File.saveContent(path, content);
     }
 
-    public function GetClassTemplates(path:Path) {
+    public function GetClassTemplates(path:String) {
         var projectTypes:Array<String> = workspace.getConfiguration('hxmanager').get('projectType');
         var detail = "";
 
@@ -129,9 +128,9 @@ class Parse {
                     var type = resolve.detail;
 
                     template = Path.join([Constants.classRoot, type, '$name.hx']);
-                    var contents = this.ParseTemplate(template, path.toString());
+                    var contents = this.ParseTemplate(template, path);
 
-                    sys.io.File.saveContent(path.toString(), contents);
+                    sys.io.File.saveContent(path, contents);
                 }
             },
 

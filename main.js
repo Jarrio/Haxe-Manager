@@ -190,10 +190,7 @@ haxe_io_Path.addTrailingSlash = function(path) {
 	}
 };
 haxe_io_Path.prototype = {
-	toString: function() {
-		return (this.dir == null ? "" : this.dir + (this.backslash ? "\\" : "/")) + this.file + (this.ext == null ? "" : "." + this.ext);
-	}
-	,__class__: haxe_io_Path
+	__class__: haxe_io_Path
 };
 var EReg = function(r,opt) {
 	this.r = new RegExp(r,opt.split("u").join(""));
@@ -504,10 +501,9 @@ var Events = function(context,output) {
 	watcher.onDidCreate(function(uri) {
 		if(js_node_Fs.readFileSync(uri.fsPath,{ encoding : "utf8"}) == "") {
 			Vscode.commands.getCommands(true).then(function(resolve) {
-				var path = new haxe_io_Path(uri.fsPath);
-				_gthis.parse.GetClassTemplates(path);
+				_gthis.parse.GetClassTemplates(uri.fsPath);
 			},function(reject) {
-				haxe_Log.trace("Reject",{ fileName : "Events.hx", lineNumber : 34, className : "Events", methodName : "new"});
+				haxe_Log.trace("Reject",{ fileName : "Events.hx", lineNumber : 32, className : "Events", methodName : "new"});
 			});
 		}
 	});
@@ -631,8 +627,8 @@ var Main = function(context) {
 	var output = Vscode.window.createOutputChannel("HaxeManager");
 	var projectsRoot = Vscode.workspace.getConfiguration("hxmanager").get("projectsRoot");
 	if(projectsRoot == null) {
-		Vscode.window.showErrorMessage("To use Haxe Manager you must configure a projects root in your settings.json file");
-		output.appendLine("ERROR: A root directory to store projects is required");
+		Vscode.window.showWarningMessage("To create projects from haxe-manager you must configure root directory in your (global) settings.json file");
+		output.appendLine("WARNING: Can't create projects without defining a source");
 		output.show(true);
 	}
 	new Events(context,output);
@@ -751,12 +747,11 @@ Parse.prototype = {
 				var name2 = resolve.label;
 				var type1 = resolve.detail;
 				template1 = haxe_io_Path.join([Constants.classRoot,type1,"" + name2 + ".hx"]);
-				var contents = path.toString();
-				var contents1 = _gthis.ParseTemplate(template1,contents);
-				js_node_Fs.writeFileSync(path.toString(),contents1);
+				var contents = _gthis.ParseTemplate(template1,path);
+				js_node_Fs.writeFileSync(path,contents);
 			}
 		},function(reject) {
-			haxe_Log.trace("Rejected: " + reject,{ fileName : "Parse.hx", lineNumber : 139, className : "Parse", methodName : "GetClassTemplates"});
+			haxe_Log.trace("Rejected: " + reject,{ fileName : "Parse.hx", lineNumber : 138, className : "Parse", methodName : "GetClassTemplates"});
 		});
 	}
 	,ParseTemplate: function(source,destination) {

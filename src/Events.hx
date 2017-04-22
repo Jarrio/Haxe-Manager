@@ -25,9 +25,7 @@ class Events {
                 if (File.getContent(uri.fsPath) == "") {
                     Vscode.commands.getCommands(true).then(                    
                         function (resolve) {
-                            var path = new haxe.io.Path(uri.fsPath);
-
-                            this.parse.GetClassTemplates(path);
+                            this.parse.GetClassTemplates(uri.fsPath);
                                                 
                         },
                         function (reject) {
