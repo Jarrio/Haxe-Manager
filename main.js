@@ -529,7 +529,7 @@ Helpers.copyFileSync = function(source,target) {
 Helpers.copyFolderRecursiveSync = function(source,target) {
 	var files = [];
 	var targetFolder = js_node_Path.join(target,js_node_Path.basename(source));
-	if(sys_FileSystem.exists(targetFolder)) {
+	if(!sys_FileSystem.exists(targetFolder)) {
 		js_node_Fs.mkdirSync(targetFolder);
 	}
 	if(js_node_Fs.lstatSync(source).isDirectory()) {

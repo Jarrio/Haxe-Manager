@@ -1,7 +1,6 @@
 package;
 
 import Enums.Classes;
-import haxe.extern.Rest;
 import Enums.Projects;
 import haxe.Constraints.Function;
 import Vscode.*;
@@ -76,7 +75,6 @@ class Commands {
         );
     }
 
-    
     public function OpenProject(src:String) {
         var uri = vscode.Uri.file(src);
         var newWindow = workspace.getConfiguration('hxmanager').get('newWindow');

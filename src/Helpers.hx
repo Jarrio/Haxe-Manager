@@ -24,7 +24,7 @@ class Helpers {
 
         //check if folder needs to be created or integrated
         var targetFolder = Path.join(target, Path.basename(source));
-        if (FileSystem.exists(targetFolder)) {
+        if (!FileSystem.exists(targetFolder)) {
             Fs.mkdirSync(targetFolder);
         }
 

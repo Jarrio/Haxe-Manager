@@ -43,8 +43,8 @@ class Parse {
 
         var projects = Constants.Join([Constants.projectsRoot, type]);
         
-        var rootProjects = Constants.Join([this.save_location, type]);
-        
+        var rootProjects = Constants.Join([this.save_location, type]);        
+
         if (!FileSystem.exists(rootProjects)) {
             FileSystem.createDirectory(rootProjects);
         }
