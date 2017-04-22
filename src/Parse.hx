@@ -1,26 +1,20 @@
 package;
 
-
-import Typedefs.ClassTemplate;
-import vscode.QuickPickItem;
-import Typedefs.Structure;
-import haxe.Template;
-import haxe.io.Path;
-
-import sys.FileSystem;
-import sys.io.File;
-
-import vscode.OutputChannel;
 import Vscode.*;
-
-import Enums.Classes;
-import Enums.Projects;
-
-import Constants;
-import Typedefs.Flixel;
+import vscode.QuickPickItem;
+import vscode.OutputChannel;
 
 import haxe.Json;
+import haxe.io.Path;
+import haxe.Template;
 
+import sys.io.File;
+import sys.FileSystem;
+
+import Constants;
+import Enums.Projects;
+import Typedefs.Flixel;
+import Typedefs.ClassTemplate;
 
 class Parse {
 
@@ -107,7 +101,7 @@ class Parse {
 
         var items = [];
         for (type in projectTypes) {
-            var file_location = Path.join([Constants.classRoot, type, 'templates.json']);
+            var file_location = Constants.Join([Constants.classRoot, type, 'templates.json']);
 
             var parse_template = Json.parse(sys.io.File.getContent(file_location));
             var templates:Array<ClassTemplate> = parse_template.templates;
@@ -127,7 +121,7 @@ class Parse {
                     var name = resolve.label;
                     var type = resolve.detail;
 
-                    template = Path.join([Constants.classRoot, type, '$name.hx']);
+                    template = Constants.Join([Constants.classRoot, type, '$name.hx']);
                     var contents = this.ParseTemplate(template, path);
 
                     sys.io.File.saveContent(path, contents);

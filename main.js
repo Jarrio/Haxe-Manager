@@ -503,7 +503,7 @@ var Events = function(context,output) {
 			Vscode.commands.getCommands(true).then(function(resolve) {
 				_gthis.parse.GetClassTemplates(uri.fsPath);
 			},function(reject) {
-				haxe_Log.trace("Reject",{ fileName : "Events.hx", lineNumber : 32, className : "Events", methodName : "new"});
+				haxe_Log.trace("Reject",{ fileName : "Events.hx", lineNumber : 30, className : "Events", methodName : "new"});
 			});
 		}
 	});
@@ -519,7 +519,7 @@ var Helpers = function() { };
 Helpers.__name__ = true;
 Helpers.copyFileSync = function(source,target) {
 	var targetFile = target;
-	if(js_node_Fs.existsSync(target)) {
+	if(sys_FileSystem.exists(target)) {
 		if(js_node_Fs.lstatSync(target).isDirectory()) {
 			targetFile = js_node_Path.join(target,js_node_Path.basename(source));
 		}
@@ -529,7 +529,7 @@ Helpers.copyFileSync = function(source,target) {
 Helpers.copyFolderRecursiveSync = function(source,target) {
 	var files = [];
 	var targetFolder = js_node_Path.join(target,js_node_Path.basename(source));
-	if(!js_node_Fs.existsSync(targetFolder)) {
+	if(sys_FileSystem.exists(targetFolder)) {
 		js_node_Fs.mkdirSync(targetFolder);
 	}
 	if(js_node_Fs.lstatSync(source).isDirectory()) {
@@ -729,7 +729,7 @@ Parse.prototype = {
 		while(_g1 < projectTypes.length) {
 			var type = projectTypes[_g1];
 			++_g1;
-			var file_location = haxe_io_Path.join([Constants.classRoot,type,"templates.json"]);
+			var file_location = Constants.Join([Constants.classRoot,type,"templates.json"]);
 			var parse_template = JSON.parse(js_node_Fs.readFileSync(file_location,{ encoding : "utf8"}));
 			var templates = parse_template.templates;
 			var _g11 = 0;
@@ -746,12 +746,12 @@ Parse.prototype = {
 				name1 = resolve.label;
 				var name2 = resolve.label;
 				var type1 = resolve.detail;
-				template1 = haxe_io_Path.join([Constants.classRoot,type1,"" + name2 + ".hx"]);
+				template1 = Constants.Join([Constants.classRoot,type1,"" + name2 + ".hx"]);
 				var contents = _gthis.ParseTemplate(template1,path);
 				js_node_Fs.writeFileSync(path,contents);
 			}
 		},function(reject) {
-			haxe_Log.trace("Rejected: " + reject,{ fileName : "Parse.hx", lineNumber : 138, className : "Parse", methodName : "GetClassTemplates"});
+			haxe_Log.trace("Rejected: " + reject,{ fileName : "Parse.hx", lineNumber : 132, className : "Parse", methodName : "GetClassTemplates"});
 		});
 	}
 	,ParseTemplate: function(source,destination) {
