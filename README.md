@@ -10,6 +10,8 @@ Go [here](https://github.com/Jarrio/Haxe-Manager/blob/master/Features.md) for a 
 
 To install the latest stable version go the [vscode marketplace](https://marketplace.visualstudio.com/items?itemName=jarrio.hxmanager)
 
+Suggest any features you think would be relevant for this extension!
+
 *Please note: This is still in early development and I will clean up code and make changes as I go through iterations so bear with me*
 
 
