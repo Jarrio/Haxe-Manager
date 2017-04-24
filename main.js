@@ -627,8 +627,7 @@ var Main = function(context) {
 	var output = Vscode.window.createOutputChannel("HaxeManager");
 	var projectsRoot = Vscode.workspace.getConfiguration("hxmanager").get("projectsRoot");
 	if(projectsRoot == null) {
-		Vscode.window.showWarningMessage("To create projects from haxe-manager you must configure root directory in your (global) settings.json file");
-		output.appendLine("WARNING: Can't create projects without defining a source");
+		this.RequestFilePath();
 		output.show(true);
 	}
 	new Events(context,output);
@@ -640,7 +639,19 @@ Main.main = $hx_exports["activate"] = function(context) {
 	new Main(context);
 };
 Main.prototype = {
-	__class__: Main
+	RequestFilePath: function() {
+		var props = { prompt : "Where would you like to store your projects?", placeHolder : "File path", ignoreFocusOut : true};
+		Vscode.window.showInputBox(props).then(function(input) {
+			if(sys_FileSystem.exists(input)) {
+				Vscode.workspace.getConfiguration().update("hxmanager.projectType",input,true).then(function(resolve) {
+					Vscode.window.showInformationMessage("Project root directory has been set");
+				});
+				return;
+			}
+			Vscode.window.showErrorMessage("Failed to set directory to {" + input + "} does it exist?");
+		});
+	}
+	,__class__: Main
 };
 Math.__name__ = true;
 var Parse = function(output) {

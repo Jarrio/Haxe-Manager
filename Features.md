@@ -7,6 +7,7 @@
 - [x] Template suggestions when file is created now work as intended!
 - [x] Cleaned up `Constants` file
 - [x] Updated the project templates `tasks.json` file
+- [x] Request filepath prompt for project root directory
 
 #### 0.1.1
 - [x] Generate a base haxe cpp project
