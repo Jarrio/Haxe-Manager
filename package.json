@@ -7,7 +7,7 @@
         "url": "https://github.com/Jarrio/Haxe-Manager.git"
     },
     "icon": "images/haxe-logo.png",
-    "version": "0.1.2",
+    "version": "0.2.0",
     "engines": {
         "vscode": "^1.4.0"
     },
@@ -46,10 +46,13 @@
                 "command": "hxmanager.CreateFlixelProject",
                 "title": "Haxe: Create HaxeFlixel Project"
             },
-
             {
                 "command": "hxmanager.CreateHaxeProject",
                 "title": "Haxe: Create Haxe Project"
+            },    
+            {
+                "command": "hxmanager.ProjectManager",
+                "title": "Haxe: Project Manager"
             }            
         ]
     }

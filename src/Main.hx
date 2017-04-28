@@ -11,9 +11,10 @@ class Main {
         var output = window.createOutputChannel("HaxeManager");        
         
         var projectsRoot = workspace.getConfiguration("hxmanager").get("projectsRoot");
-
+        var seperate = workspace.getConfiguration('hxmanager').get('seperateFolders');
+        
         if (projectsRoot == null) {
-            RequestFilePath();
+            Setup();
             // window.showWarningMessage("To create projects from haxe-manager you must configure root directory in your (global) settings.json file. (hxmanger.projectType)");
             // output.appendLine("WARNING: Can't create projects without defining a source");
 
@@ -24,17 +25,22 @@ class Main {
         new Commands(context, output);
     }
     
-    public function RequestFilePath() {
+    public function Setup() {
+
+
         var props:InputBoxOptions = { 
             prompt: "Where would you like to store your projects?",
             placeHolder: "File path",
             ignoreFocusOut: true   
         }
 
+        // window.showInformationMessage("Would you like projects to be seperated in the root folder based on project type? (default: Yes)", { modal: true }, 'Yes', 'No').then(
+
+
         window.showInputBox(props).then(
             function (input) {
                 if (FileSystem.exists(input)) {
-                    workspace.getConfiguration().update('hxmanager.projectType', input, true).then(
+                    workspace.getConfiguration().update('hxmanager.projectsRoot', input, true).then(
                         function (resolve) {
                             window.showInformationMessage('Project root directory has been set');
                         }

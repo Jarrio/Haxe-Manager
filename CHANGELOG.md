@@ -1,5 +1,8 @@
 # Features and improvements
 
+#### 0.2.0
+- [x] Added an input prompt for setting the initial project root directory on first launch
+- [x] Added a basic Project Manager based on the above directory! Command is listed when searching for `Project Manager`.
 
 #### 0.1.2
 - [x] Restructured some code, files and folders

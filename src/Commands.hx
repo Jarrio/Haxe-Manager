@@ -1,5 +1,6 @@
 package;
 
+import sys.FileSystem;
 import Enums.Classes;
 import Enums.Projects;
 import haxe.Constraints.Function;
@@ -29,6 +30,7 @@ class Commands {
 
         registerCommand('CreateHaxeProject', this.CreateHaxeProject);
         registerCommand('CreateFlixelProject', this.CreateHaxeFlixelProject);
+        registerCommand('ProjectManager', this.ProjectManager);
     }
 
     private function registerCommand(command:String, callback:Function) {        
@@ -56,6 +58,64 @@ class Commands {
         );
     }
 
+    private function ProjectManager() {
+        var projectPath = workspace.getConfiguration('hxmanager').get('projectsRoot');
+        var projects = [];
+
+        if (FileSystem.exists(projectPath)) {
+            var directories =  FileSystem.readDirectory(projectPath);
+            for (dir in directories) {
+                var detail = Constants.Join([projectPath, dir]);
+                projects.push(this.CreateQuickPickItem(dir, null, detail));
+            }
+
+
+            window.showQuickPick(projects, {matchOnDetail: true, ignoreFocusOut: true}).then(
+                function (resolve) {                    
+                    var folders = [];
+                    var directories = FileSystem.readDirectory(resolve.detail);
+                    
+                    var projects = [];
+                    var opened = false;
+                    for (project in directories) {
+                        if (project.indexOf('.') != -1) {
+                            opened = true;
+                            
+                            this.OpenProject(resolve.detail);                            
+                            return;
+                        }
+                    }
+
+                    if (opened) return;
+
+                    for (dir in directories) {                     
+                        var detail = Constants.Join([resolve.detail, dir]);
+
+                        folders.push(this.CreateQuickPickItem(dir, null, detail));                        
+                    }
+
+                    window.showQuickPick(folders, {matchOnDetail: true, ignoreFocusOut: true}).then(
+                        function (resolve) {
+                            this.OpenProject(resolve.detail);
+                        }
+                    );
+                }
+            );            
+
+        }
+
+    }
+
+    public function CreateQuickPickItem(label:String, ?description:String, ?detail:String) {
+        var item:QuickPickItem = {
+            label: label,
+            description: description,
+            detail: detail
+        };
+
+        return item;
+    }
+    
     public function ShowInput(projectType:Projects) {
         window.showInputBox(this.InputBoxProps()).then(
             function (input) {
