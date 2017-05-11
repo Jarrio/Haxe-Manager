@@ -6,7 +6,7 @@
 - [x] Bug fix: Fixed the `FlxSprite` template file. Forgot to add the `elapsed` call to the update loop.
 
 ##0.2.0
-=====
+
 - [x] Added an input prompt for setting the initial project root directory on first launch
 - [x] Added a basic Project Manager based on the above directory! Command is listed when searching for `Project Manager`.
 
@@ -24,7 +24,7 @@
 - [x] Request filepath prompt for project root directory
 
 ## 0.1.0
-=====
+
 - [x] Generate a base haxeflixel project
 - [x] Auto-fill standard haxe class when creating a new haxe file
 
