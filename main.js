@@ -672,15 +672,20 @@ _$List_ListNode.prototype = {
 	__class__: _$List_ListNode
 };
 var Main = function(context) {
-	var output = Vscode.window.createOutputChannel("HaxeManager");
+	this.completed_setup = false;
+	this.output = Vscode.window.createOutputChannel("HaxeManager");
+	this.context = context;
 	var projectsRoot = Vscode.workspace.getConfiguration("hxmanager").get("projectsRoot");
 	var seperate = Vscode.workspace.getConfiguration("hxmanager").get("seperateFolders");
 	if(projectsRoot == null) {
 		this.Setup();
-		output.show(true);
+		this.output.show(true);
+	} else {
+		this.completed_setup = true;
 	}
-	new Events(context,output);
-	new Commands(context,output);
+	if(this.completed_setup) {
+		this.Load();
+	}
 };
 Main.__name__ = true;
 Main.main = $hx_exports["activate"] = function(context) {
@@ -688,11 +693,18 @@ Main.main = $hx_exports["activate"] = function(context) {
 	new Main(context);
 };
 Main.prototype = {
-	Setup: function() {
+	Load: function() {
+		new Events(this.context,this.output);
+		new Commands(this.context,this.output);
+	}
+	,Setup: function() {
+		var _gthis = this;
 		var props = { prompt : "Where would you like to store your projects?", placeHolder : "File path", ignoreFocusOut : true};
 		Vscode.window.showInputBox(props).then(function(input) {
 			if(sys_FileSystem.exists(input)) {
 				Vscode.workspace.getConfiguration().update("hxmanager.projectsRoot",input,true).then(function(resolve) {
+					_gthis.completed_setup = true;
+					_gthis.Load();
 					Vscode.window.showInformationMessage("Project root directory has been set");
 				});
 				return;

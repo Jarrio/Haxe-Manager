@@ -5,26 +5,34 @@ import Vscode.*;
 import vscode.*;
 
 class Main {
-
+    private var completed_setup:Bool = false;
+    private var context:ExtensionContext;
+    private var output:OutputChannel;
     function new(context:ExtensionContext) {
 
-        var output = window.createOutputChannel("HaxeManager");        
+        this.output = window.createOutputChannel("HaxeManager");   
+        this.context = context;     
         
         var projectsRoot = workspace.getConfiguration("hxmanager").get("projectsRoot");
         var seperate = workspace.getConfiguration('hxmanager').get('seperateFolders');
         
         if (projectsRoot == null) {
-            Setup();
-            // window.showWarningMessage("To create projects from haxe-manager you must configure root directory in your (global) settings.json file. (hxmanger.projectType)");
-            // output.appendLine("WARNING: Can't create projects without defining a source");
-
-            output.show(true);
+            this.Setup();
+            this.output.show(true);
+        } else {
+            completed_setup = true;
         }
+
+        if (completed_setup) {
+            this.Load();
+        }
+    }
     
+    public function Load() {
         new Events(context, output);
         new Commands(context, output);
     }
-    
+
     public function Setup() {
 
 
@@ -42,6 +50,8 @@ class Main {
                 if (FileSystem.exists(input)) {
                     workspace.getConfiguration().update('hxmanager.projectsRoot', input, true).then(
                         function (resolve) {
+                            this.completed_setup = true;
+                            Load();
                             window.showInformationMessage('Project root directory has been set');
                         }
                     );
