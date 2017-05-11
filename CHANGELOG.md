@@ -10,6 +10,8 @@
 - [x] Added an input prompt for setting the initial project root directory on first launch
 - [x] Added a basic Project Manager based on the above directory! Command is listed when searching for `Project Manager`.
 
+---
+
 ##### 0.1.1
 - [x] Generate a base haxe cpp project
 - [x] Rudimentry `package` auto-fill. Requires project files to be stored in a `source` or `src` directory
