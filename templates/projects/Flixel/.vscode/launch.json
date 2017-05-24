@@ -1,18 +1,36 @@
 {
-	"version": "0.2.0",
+	"version": "0.3.0",
 	"configurations": [
 		{
-			"name": "flash build + launch",
+			"name": "Flash",
 			"type": "fdb",
 			"request": "launch",
-			"program": "${workspaceRoot}/export/flash/bin/${APPLICATION_FILE}.swf",
+			"program": "${workspaceRoot}/export/flash/bin/::name::.swf"
+		},
+		{
+			"name": "Flash (+rebuild)",
+			"type": "fdb",
+			"request": "launch",
+			"program": "${workspaceRoot}/export/flash/bin/::name::.swf",
 			"preLaunchTask": "flash debug (build only)"
 		},
 		{
-			"name": "flash launch",
-			"type": "fdb",
+			"name": "Windows",
+			"type": "hxcpp",
 			"request": "launch",
-			"program": "${workspaceRoot}/export/flash/bin/${APPLICATION_FILE}.swf"
+			"program": "${workspaceRoot}/export/windows/cpp/bin/::name::.exe"
+		},
+		{
+			"name": "Linux",
+			"type": "hxcpp",
+			"request": "launch",
+			"program": "${workspaceRoot}/export/linux/cpp/bin/::name::.exe"
+		},
+		{
+			"name": "Mac",
+			"type": "hxcpp",
+			"request": "launch",
+			"program": "${workspaceRoot}/export/mac/cpp/bin/::name::.exe"
 		}
 	]
 }
