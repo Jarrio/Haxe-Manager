@@ -24,7 +24,7 @@
 			"name": "Linux",
 			"type": "hxcpp",
 			"request": "launch",
-			"program": "${workspaceRoot}/export/linux/cpp/bin/::name::.exe"
+			"program": "${workspaceRoot}/export/linux/cpp/bin/::name::"
 		},
 		{
 			"name": "Mac",
