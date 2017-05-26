@@ -14,12 +14,56 @@ import Vscode.workspace;
 
 class Helpers {
     
+    /**
+     *  Get the templates path for projects
+     *  @param type - The type of project
+     *  @return String
+     **/
+    public static function projectPath(type:String):String {
+        var source = Constants.Join([Constants.project_root, type]);
+        
+
+        if (!pathExists(source)) {
+            return null;
+        }
+
+        return source;
+    }
+
+    /**
+     *  Get a path based off of the projects root directory
+     *  @param path - Optional extension for the projects root folder
+     *  @return String
+     **/
+    public static function homeRoot(?path:Array<String>):String {
+        var home = getConfiguration('projectsRoot');
+        var path = Constants.Join(path);
+
+        return (home + path);
+    }
+    /**
+     *  Check if directory or file exists
+     *  @param path - location of the directory or file
+     *  @return Bool
+     **/
+    public static function pathExists(path:String):Bool {
+        if (!FileSystem.exists(path)) {
+            return false;
+        }
+        return true;
+    }
+    
+    /**
+     *  Get extension settings
+     *  @param value - The specific setting identifier
+     *  @param source - Root access to the setting
+     **/
     public static function getConfiguration(value:String, source:String = 'hxmanager') {
         return workspace.getConfiguration(source).get(value);
     }
 
     /**
-     *  Helper to register a command 
+     *  Register a command 
      *  @param name - Internal identifier for the command
      *  @param event - Tell vscode what to do with when this command has been called
      **/
@@ -30,7 +74,7 @@ class Helpers {
     }
 
     /**
-     *  Helper to trigger an input box
+     *  Trigger an input box
      *  @param options - Configure the input box 
      *  @param onResolve - The callback for the a successful return
      *  @param onReject - Optional callback if any errors occured
@@ -40,7 +84,7 @@ class Helpers {
     }
 
     /**
-     *  Helper to generate a quick pick item
+     *  Generate a quick pick item
      *  @param label - Title of the item
      *  @param description - Appears next to the title, a description of the item
      *  @param detail - Provide more information or keywords in the detail portion. Is hidden by default
@@ -55,7 +99,7 @@ class Helpers {
     }
 
     /**
-     *  Helper to open a project 
+     *  Open a project 
      *  @param source - Path to the project
      *  @param newWindow - Open the project in a new window
      **/
@@ -66,6 +110,15 @@ class Helpers {
         
         var uri = vscode.Uri.file(source);
         commands.executeCommand("vscode.openFolder", uri, newWindow);        
+    }
+
+    /**
+     *  Rename a directory
+     *  @param source - Original folder
+     *  @param destination - Renamed folder
+     **/
+    public static function renameDirectory(source:String, destination:String) {
+        FileSystem.rename(source, destination);
     }
 
     public static function copyFileSync(source:String, target:String) {
@@ -79,7 +132,7 @@ class Helpers {
         Fs.writeFileSync(target, Fs.readFileSync(source));
     }
 
-    public static function copyFolderRecursiveSync(source, target) {
+    public static function copyFolders(source, target) {
         var files = [];
 
         //check if folder needs to be created or integrated
@@ -95,7 +148,7 @@ class Helpers {
             for (file in files) {
                 var curSource = Path.join(source, file);
                 if (Fs.lstatSync(curSource).isDirectory()) {
-                    copyFolderRecursiveSync(curSource, targetFolder);
+                    copyFolders(curSource, targetFolder);
                 } else {
                     copyFileSync(curSource, targetFolder);
                 }

@@ -13,11 +13,15 @@ var Commands = function(context,output) {
 	this.context = context;
 	this.parse = new Parse(output);
 	this.root = Helpers.getConfiguration("projectRoot");
-	Helpers.registerCommand(context,"CreateProjects",$bind(this,this.createProjects));
+	this.registerCommands();
 };
 Commands.__name__ = true;
 Commands.prototype = {
-	createProjects: function() {
+	registerCommands: function() {
+		Helpers.registerCommand(this.context,"CreateProjects",$bind(this,this.createProjects));
+		Helpers.registerCommand(this.context,"ProjectManager",$bind(this,this.projectManager));
+	}
+	,createProjects: function() {
 		var _gthis = this;
 		var items = [];
 		var _g = 0;
@@ -29,18 +33,83 @@ Commands.prototype = {
 		}
 		Vscode.window.showQuickPick(items,{ ignoreFocusOut : true, placeHolder : "Select project type"}).then(function(resolve) {
 			var input_props = { prompt : "Project name", placeHolder : "Type a name for the project"};
-			var success = function(input) {
-				if(input == null || input == "" || input == "undefined") {
-					Vscode.window.showWarningMessage("A project nae is required");
+			var success = function(name) {
+				if(name == null || name == "" || name == "undefined") {
+					Vscode.window.showWarningMessage("A project name is required");
 					return;
 				}
-				haxe_Log.trace("Project " + input + " created",{ fileName : "Commands.hx", lineNumber : 58, className : "Commands", methodName : "createProjects"});
+				var type1 = resolve.label;
+				var source = Helpers.projectPath(type1);
+				var input = Helpers.homeRoot([type1,"lBlankl"]);
+				var output = Helpers.homeRoot([type1,name]);
+				haxe_Log.trace(source,{ fileName : "Commands.hx", lineNumber : 81, className : "Commands", methodName : "createProjects"});
+				haxe_Log.trace(input,{ fileName : "Commands.hx", lineNumber : 82, className : "Commands", methodName : "createProjects"});
+				haxe_Log.trace(output,{ fileName : "Commands.hx", lineNumber : 83, className : "Commands", methodName : "createProjects"});
+				Helpers.copyFolders(source,input);
+				Helpers.renameDirectory(input,output);
+				var root_dir = Helpers.homeRoot([type1,name]);
+				var project_xml = Constants.Join([root_dir,"Project.xml"]);
+				if(Helpers.pathExists(project_xml)) {
+					var get_content = js_node_Fs.readFileSync(project_xml,{ encoding : "utf8"});
+					var parse = new haxe_Template(get_content);
+					var data = { name : name, height : 640, width : 640};
+					var content = parse.execute(data);
+					js_node_Fs.writeFileSync(project_xml,content);
+				}
+				if(Helpers.pathExists(root_dir)) {
+					haxe_Log.trace("Project " + input + " created",{ fileName : "Commands.hx", lineNumber : 110, className : "Commands", methodName : "createProjects"});
+					return;
+				}
+				haxe_Log.trace("Failed to create the project",{ fileName : "Commands.hx", lineNumber : 114, className : "Commands", methodName : "createProjects"});
+				return;
 			};
 			var error = function(response) {
 				_gthis.output.appendLine("Error - " + Std.string(response));
 			};
 			Helpers.showInput(input_props,success,error);
 		});
+	}
+	,projectManager: function() {
+		var projectPath = Vscode.workspace.getConfiguration("hxmanager").get("projectsRoot");
+		var projects = [];
+		if(sys_FileSystem.exists(projectPath)) {
+			var directories = js_node_Fs.readdirSync(projectPath);
+			var _g = 0;
+			while(_g < directories.length) {
+				var dir = directories[_g];
+				++_g;
+				var detail = Constants.Join([projectPath,dir]);
+				projects.push(Helpers.quickPickItem(dir,null,detail));
+			}
+			Vscode.window.showQuickPick(projects,{ matchOnDetail : true, ignoreFocusOut : true}).then(function(resolve) {
+				var folders = [];
+				var directories1 = js_node_Fs.readdirSync(resolve.detail);
+				var opened = false;
+				var _g1 = 0;
+				while(_g1 < directories1.length) {
+					var project = directories1[_g1];
+					++_g1;
+					if(project.indexOf(".") != -1) {
+						opened = true;
+						Helpers.openProject(resolve.detail);
+						return;
+					}
+				}
+				if(opened) {
+					return;
+				}
+				var _g2 = 0;
+				while(_g2 < directories1.length) {
+					var dir1 = directories1[_g2];
+					++_g2;
+					var detail1 = Constants.Join([resolve.detail,dir1]);
+					folders.push(Helpers.quickPickItem(dir1,null,detail1));
+				}
+				Vscode.window.showQuickPick(folders,{ matchOnDetail : true, ignoreFocusOut : true}).then(function(resolve1) {
+					Helpers.openProject(resolve1.detail);
+				});
+			});
+		}
 	}
 	,__class__: Commands
 };
@@ -501,6 +570,24 @@ Events.prototype = {
 };
 var Helpers = function() { };
 Helpers.__name__ = true;
+Helpers.projectPath = function(type) {
+	var source = Constants.Join([Constants.project_root,type]);
+	if(!Helpers.pathExists(source)) {
+		return null;
+	}
+	return source;
+};
+Helpers.homeRoot = function(path) {
+	var home = Helpers.getConfiguration("projectsRoot");
+	var path1 = Constants.Join(path);
+	return home + path1;
+};
+Helpers.pathExists = function(path) {
+	if(!sys_FileSystem.exists(path)) {
+		return false;
+	}
+	return true;
+};
 Helpers.getConfiguration = function(value,source) {
 	if(source == null) {
 		source = "hxmanager";
@@ -523,6 +610,9 @@ Helpers.openProject = function(source,newWindow) {
 	var uri = vscode_Uri.file(source);
 	Vscode.commands.executeCommand("vscode.openFolder",uri,newWindow);
 };
+Helpers.renameDirectory = function(source,destination) {
+	js_node_Fs.renameSync(source,destination);
+};
 Helpers.copyFileSync = function(source,target) {
 	if(sys_FileSystem.exists(target)) {
 		if(js_node_Fs.lstatSync(target).isDirectory()) {
@@ -531,7 +621,7 @@ Helpers.copyFileSync = function(source,target) {
 	}
 	js_node_Fs.writeFileSync(target,js_node_Fs.readFileSync(source));
 };
-Helpers.copyFolderRecursiveSync = function(source,target) {
+Helpers.copyFolders = function(source,target) {
 	var files = [];
 	var targetFolder = js_node_Path.join(target,js_node_Path.basename(source));
 	if(!sys_FileSystem.exists(targetFolder)) {
@@ -545,7 +635,7 @@ Helpers.copyFolderRecursiveSync = function(source,target) {
 			++_g;
 			var curSource = js_node_Path.join(source,file);
 			if(js_node_Fs.lstatSync(curSource).isDirectory()) {
-				Helpers.copyFolderRecursiveSync(curSource,targetFolder);
+				Helpers.copyFolders(curSource,targetFolder);
 			} else {
 				Helpers.copyFileSync(curSource,targetFolder);
 			}
@@ -735,7 +825,7 @@ Parse.prototype = {
 		js_node_Fs.renameSync(original,destination);
 	}
 	,MoveDirectory: function(original,destination) {
-		Helpers.copyFolderRecursiveSync(original,destination);
+		Helpers.copyFolders(original,destination);
 	}
 	,GetFileContents: function(path) {
 		return js_node_Fs.readFileSync(path,{ encoding : "utf8"});
@@ -1380,6 +1470,10 @@ Constants.extensionRoot = Vscode.extensions.getExtension("jarrio.hxmanager").ext
 Constants.templatesRoot = Constants.Join([Constants.extensionRoot,"templates"]);
 Constants.classRoot = Constants.Join([Constants.templatesRoot,"classes"]);
 Constants.projectsRoot = Constants.Join([Constants.templatesRoot,"projects"]);
+Constants.templates_root = Constants.Join([Constants.extensionRoot,"templates"]);
+Constants.class_root = Constants.Join([Constants.templatesRoot,"classes"]);
+Constants.project_root = Constants.Join([Constants.templatesRoot,"projects"]);
+Constants.extension_root = Vscode.extensions.getExtension("jarrio.hxmanager").extensionPath;
 haxe_Template.splitter = new EReg("(::[A-Za-z0-9_ ()&|!+=/><*.\"-]+::|\\$\\$([A-Za-z0-9_-]+)\\()","");
 haxe_Template.expr_splitter = new EReg("(\\(|\\)|[ \r\n\t]*\"[^\"]*\"[ \r\n\t]*|[!+=/><*.&|-]+)","");
 haxe_Template.expr_trim = new EReg("^[ ]*([^ ]+)[ ]*$","");

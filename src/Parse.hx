@@ -80,7 +80,7 @@ class Parse {
     }
 
     public function MoveDirectory(original:String, destination:String):Void {       
-        Helpers.copyFolderRecursiveSync(original, destination);    
+        Helpers.copyFolders(original, destination);    
     }
 
     public function GetFileContents(path:String):String {

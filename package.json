@@ -35,6 +35,9 @@
                     "description": "Used internally to help aid class generation etc",
                     "type":"array",
                     "default": ["Haxe"],
+                    "definitions": {
+                        
+                    },
                     "enum": [
                         "Haxe", "Flixel"
                     ]                    
@@ -42,14 +45,6 @@
             }
         },        
         "commands": [
-            {
-                "command": "hxmanager.CreateFlixelProject",
-                "title": "Haxe: Create HaxeFlixel Project"
-            },
-            {
-                "command": "hxmanager.CreateHaxeProject",
-                "title": "Haxe: Create Haxe Project"
-            },    
             {
                 "command": "hxmanager.ProjectManager",
                 "title": "Haxe: Project Manager"

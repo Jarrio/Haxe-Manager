@@ -1,5 +1,7 @@
 package;
 
+import sys.FileSystem;
+import haxe.Template;
 import Helpers;
 import vscode.OutputChannel;
 import vscode.ExtensionContext;
@@ -7,6 +9,8 @@ import vscode.ExtensionContext;
 import Vscode.window;
 import Vscode.workspace;
 import system.enums.Project;
+
+import sys.io.File;
 
 class Commands {
 
@@ -35,6 +39,7 @@ class Commands {
      **/
     private function registerCommands() {
         Helpers.registerCommand(context, 'CreateProjects', this.createProjects);
+        Helpers.registerCommand(context, 'ProjectManager', this.projectManager);
     }
 
     /**
@@ -62,13 +67,52 @@ class Commands {
                     placeHolder: "Type a name for the project"
                 }
 
-                function success(input:Null<String>) {
-                    if (input == null || input == "" || input == "undefined") {
+                function success(name:Null<String>) {
+                    if (name == null || name == "" || name == "undefined") {
                         window.showWarningMessage('A project name is required');
                         return;
                     }
+                    
+                    var type = resolve.label;
+                    
+                    var source = Helpers.projectPath(type);
+                    var input = Helpers.homeRoot([type, 'lBlankl']);
+                    var output = Helpers.homeRoot([type, name]);
+                    trace(source);
+                    trace(input);
+                    trace(output);
+                    Helpers.copyFolders(source, input);
+                    Helpers.renameDirectory(input, output);
 
-                    trace('Project $input created');
+                    /**************
+                     * @change 
+                     * Temporary location for project configuration until I design a more
+                     * dynamic and flexible system for this
+                     **************/                     
+                    var root_dir = Helpers.homeRoot([type, name]);
+                    var project_xml = Constants.Join([root_dir, 'Project.xml']);
+
+                    if(Helpers.pathExists(project_xml)) {
+                        var get_content = File.getContent(project_xml);
+                        var parse = new Template(get_content);
+
+                        var data = {
+                            name: name, 
+                            height: 640,
+                            width: 640
+                        }
+
+                        var content = parse.execute(data);
+                        File.saveContent(project_xml, content);                        
+                    }
+                    
+                    if (Helpers.pathExists(root_dir)) {
+                        trace('Project $input created');
+                        return;
+                    }      
+                    
+                    trace('Failed to create the project');
+                    return;          
                 }
 
                 function error(response:Dynamic) {
@@ -78,5 +122,56 @@ class Commands {
                 Helpers.showInput(input_props, success, error);
             }
         );
+    }
+
+    /*****
+      * @Rework 
+      *****/
+    private function projectManager() {
+        var projectPath = workspace.getConfiguration('hxmanager').get('projectsRoot');
+        var projects = [];
+
+        if (FileSystem.exists(projectPath)) {
+            var directories =  FileSystem.readDirectory(projectPath);
+            for (dir in directories) {
+                var detail = Constants.Join([projectPath, dir]);
+                projects.push(Helpers.quickPickItem(dir, null, detail));
+            }
+
+
+            window.showQuickPick(projects, {matchOnDetail: true, ignoreFocusOut: true}).then(
+                function (resolve) {                    
+                    var folders = [];
+                    var directories = FileSystem.readDirectory(resolve.detail);
+                    
+                    var projects = [];
+                    var opened = false;
+                    for (project in directories) {
+                        if (project.indexOf('.') != -1) {
+                            opened = true;
+                            
+                            Helpers.openProject(resolve.detail);                            
+                            return;
+                        }
+                    }
+
+                    if (opened) return;
+
+                    for (dir in directories) {                     
+                        var detail = Constants.Join([resolve.detail, dir]);
+
+                        folders.push(Helpers.quickPickItem(dir, null, detail));                        
+                    }
+
+                    window.showQuickPick(folders, {matchOnDetail: true, ignoreFocusOut: true}).then(
+                        function (resolve) {
+                            Helpers.openProject(resolve.detail);
+                        }
+                    );
+                }
+            );            
+
+        }
+
     }
 }
