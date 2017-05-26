@@ -1,6 +1,6 @@
 package system.enums;
 
-enum EProject {
+enum Project {
     Haxe;
     Flixel;
 }

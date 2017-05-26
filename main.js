@@ -18,16 +18,28 @@ var Commands = function(context,output) {
 Commands.__name__ = true;
 Commands.prototype = {
 	createProjects: function() {
+		var _gthis = this;
 		var items = [];
 		var _g = 0;
-		var _g1 = system_enums_EProject.__empty_constructs__;
+		var _g1 = system_enums_Project.__empty_constructs__;
 		while(_g < _g1.length) {
 			var type = _g1[_g];
 			++_g;
 			items.push(Helpers.quickPickItem(type[0]));
 		}
-		Vscode.window.showQuickPick(items,{ ignoreFocusOut : true}).then(function(resolve) {
-			haxe_Log.trace(resolve,{ fileName : "Commands.hx", lineNumber : 46, className : "Commands", methodName : "createProjects"});
+		Vscode.window.showQuickPick(items,{ ignoreFocusOut : true, placeHolder : "Select project type"}).then(function(resolve) {
+			var input_props = { prompt : "Project name", placeHolder : "Type a name for the project"};
+			var success = function(input) {
+				if(input == null || input == "" || input == "undefined") {
+					Vscode.window.showWarningMessage("A project nae is required");
+					return;
+				}
+				haxe_Log.trace("Project " + input + " created",{ fileName : "Commands.hx", lineNumber : 58, className : "Commands", methodName : "createProjects"});
+			};
+			var error = function(response) {
+				_gthis.output.appendLine("Error - " + Std.string(response));
+			};
+			Helpers.showInput(input_props,success,error);
 		});
 	}
 	,__class__: Commands
@@ -1341,14 +1353,14 @@ sys_FileSystem.createDirectory = function(path) {
 		}
 	}
 };
-var system_enums_EProject = { __ename__ : true, __constructs__ : ["Haxe","Flixel"] };
-system_enums_EProject.Haxe = ["Haxe",0];
-system_enums_EProject.Haxe.toString = $estr;
-system_enums_EProject.Haxe.__enum__ = system_enums_EProject;
-system_enums_EProject.Flixel = ["Flixel",1];
-system_enums_EProject.Flixel.toString = $estr;
-system_enums_EProject.Flixel.__enum__ = system_enums_EProject;
-system_enums_EProject.__empty_constructs__ = [system_enums_EProject.Haxe,system_enums_EProject.Flixel];
+var system_enums_Project = { __ename__ : true, __constructs__ : ["Haxe","Flixel"] };
+system_enums_Project.Haxe = ["Haxe",0];
+system_enums_Project.Haxe.toString = $estr;
+system_enums_Project.Haxe.__enum__ = system_enums_Project;
+system_enums_Project.Flixel = ["Flixel",1];
+system_enums_Project.Flixel.toString = $estr;
+system_enums_Project.Flixel.__enum__ = system_enums_Project;
+system_enums_Project.__empty_constructs__ = [system_enums_Project.Haxe,system_enums_Project.Flixel];
 var vscode_Uri = require("vscode").Uri;
 var $_, $fid = 0;
 function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; }
