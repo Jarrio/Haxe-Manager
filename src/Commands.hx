@@ -83,6 +83,15 @@ class Commands {
                     trace(input);
                     trace(output);
 
+                    /***
+                    * 
+Commands.hx:82: w:/Haxe/VSCode/Haxe-Manager/templates/projects/Flixel/
+Commands.hx:83: W:/Projects/Flixel/Flixel/
+Commands.hx:84: W:/Projects/Flixel/Test/
+WARNING: Promise with no error callback:2
+Object
+Error: ENOENT: no such file or directory, rename 'W:\Projects\Flixel\Test' -> 'W:\Projects\Flixel\Test'
+                    **/
                     Helpers.copyFolders(source, input);                    
                     Helpers.renameDirectory(rename_source, output);
 
