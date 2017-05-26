@@ -37,9 +37,10 @@ class Helpers {
      **/
     public static function homeRoot(?path:Array<String>):String {
         var home = getConfiguration('projectsRoot');
-        var path = Constants.Join(path);
+        path.insert(0, home);
 
-        return (home + path);
+        var path = Constants.Join(path);
+        return (path);
     }
     /**
      *  Check if directory or file exists
