@@ -78,7 +78,7 @@ class Commands {
                     var source = Helpers.projectPath(type);
                     var input = Helpers.homeRoot([type, type]);
                     var output = Helpers.homeRoot([type, name]);
-                    var rename_source = Helpers.homeRoot([type, name]);
+
                     trace(source);
                     trace(input);
                     trace(output);
@@ -93,7 +93,7 @@ Object
 Error: ENOENT: no such file or directory, rename 'W:\Projects\Flixel\Test' -> 'W:\Projects\Flixel\Test'
                     **/
                     Helpers.copyFolders(source, input);                    
-                    Helpers.renameDirectory(rename_source, output);
+                    Helpers.renameDirectory(input, output);
 
                     /**************
                      * @change 

@@ -138,8 +138,12 @@ class Helpers {
 
         //check if folder needs to be created or integrated
         var targetFolder = Path.join(target, Path.basename(source));
-        if (!FileSystem.exists(targetFolder)) {
-            Fs.mkdirSync(targetFolder);
+        trace(source);
+        trace(target);
+        trace(targetFolder);
+
+        if (!FileSystem.exists(target)) {
+            Fs.mkdirSync(target);
         }
 
         //copy
@@ -149,9 +153,9 @@ class Helpers {
             for (file in files) {
                 var curSource = Path.join(source, file);
                 if (Fs.lstatSync(curSource).isDirectory()) {
-                    copyFolders(curSource, targetFolder);
+                    copyFolders(curSource, target);
                 } else {
-                    copyFileSync(curSource, targetFolder);
+                    copyFileSync(curSource, target);
                 }
             }
         }

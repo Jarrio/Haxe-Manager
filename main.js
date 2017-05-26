@@ -47,7 +47,7 @@ Commands.prototype = {
 				haxe_Log.trace(input,{ fileName : "Commands.hx", lineNumber : 83, className : "Commands", methodName : "createProjects"});
 				haxe_Log.trace(output,{ fileName : "Commands.hx", lineNumber : 84, className : "Commands", methodName : "createProjects"});
 				Helpers.copyFolders(source,input);
-				Helpers.renameDirectory(rename_source,output);
+				Helpers.renameDirectory(input,output);
 				var root_dir = Helpers.homeRoot([type1,name]);
 				var project_xml = Constants.Join([root_dir,"Project.xml"]);
 				if(Helpers.pathExists(project_xml)) {
@@ -58,10 +58,10 @@ Commands.prototype = {
 					js_node_Fs.writeFileSync(project_xml,content);
 				}
 				if(Helpers.pathExists(root_dir)) {
-					haxe_Log.trace("Project " + input + " created",{ fileName : "Commands.hx", lineNumber : 112, className : "Commands", methodName : "createProjects"});
+					haxe_Log.trace("Project " + input + " created",{ fileName : "Commands.hx", lineNumber : 121, className : "Commands", methodName : "createProjects"});
 					return;
 				}
-				haxe_Log.trace("Failed to create the project",{ fileName : "Commands.hx", lineNumber : 116, className : "Commands", methodName : "createProjects"});
+				haxe_Log.trace("Failed to create the project",{ fileName : "Commands.hx", lineNumber : 125, className : "Commands", methodName : "createProjects"});
 				return;
 			};
 			var error = function(response) {
@@ -626,8 +626,11 @@ Helpers.copyFileSync = function(source,target) {
 Helpers.copyFolders = function(source,target) {
 	var files = [];
 	var targetFolder = js_node_Path.join(target,js_node_Path.basename(source));
-	if(!sys_FileSystem.exists(targetFolder)) {
-		js_node_Fs.mkdirSync(targetFolder);
+	haxe_Log.trace(source,{ fileName : "Helpers.hx", lineNumber : 141, className : "Helpers", methodName : "copyFolders"});
+	haxe_Log.trace(target,{ fileName : "Helpers.hx", lineNumber : 142, className : "Helpers", methodName : "copyFolders"});
+	haxe_Log.trace(targetFolder,{ fileName : "Helpers.hx", lineNumber : 143, className : "Helpers", methodName : "copyFolders"});
+	if(!sys_FileSystem.exists(target)) {
+		js_node_Fs.mkdirSync(target);
 	}
 	if(js_node_Fs.lstatSync(source).isDirectory()) {
 		files = js_node_Fs.readdirSync(source);
@@ -637,9 +640,9 @@ Helpers.copyFolders = function(source,target) {
 			++_g;
 			var curSource = js_node_Path.join(source,file);
 			if(js_node_Fs.lstatSync(curSource).isDirectory()) {
-				Helpers.copyFolders(curSource,targetFolder);
+				Helpers.copyFolders(curSource,target);
 			} else {
-				Helpers.copyFileSync(curSource,targetFolder);
+				Helpers.copyFileSync(curSource,target);
 			}
 		}
 	}
