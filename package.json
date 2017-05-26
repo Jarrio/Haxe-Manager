@@ -53,6 +53,10 @@
             {
                 "command": "hxmanager.ProjectManager",
                 "title": "Haxe: Project Manager"
+            },            
+            {
+                "command": "hxmanager.CreateProjects",
+                "title": "Haxe: Create a Project"
             }            
         ]
     }

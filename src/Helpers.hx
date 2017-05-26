@@ -13,6 +13,11 @@ import Vscode.commands;
 import Vscode.workspace;
 
 class Helpers {
+    
+    public static function getConfiguration(value:String, source:String = 'hxmanager') {
+        return workspace.getConfiguration(source).get(value);
+    }
+
     /**
      *  Helper to register a command 
      *  @param name - Internal identifier for the command
@@ -20,7 +25,7 @@ class Helpers {
      **/
     public static function registerCommand(context:ExtensionContext, name:String, event:Function) {
         context.subscriptions.push(
-            commands.registerCommand('hxmanager.$name', event);
+            commands.registerCommand('hxmanager.$name', event)
         );
     }
 
@@ -45,7 +50,7 @@ class Helpers {
         return {
             label: label,
             description: description,
-            detail: detail;
+            detail: detail
         }
     }
 

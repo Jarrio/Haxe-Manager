@@ -12,101 +12,23 @@ var Commands = function(context,output) {
 	this.output = output;
 	this.context = context;
 	this.parse = new Parse(output);
-	this.project_root = Vscode.workspace.getConfiguration("hxmanager").get("projectRoot");
-	this.registerCommand("CreateHaxeProject",$bind(this,this.CreateHaxeProject));
-	this.registerCommand("CreateFlixelProject",$bind(this,this.CreateHaxeFlixelProject));
-	this.registerCommand("ProjectManager",$bind(this,this.ProjectManager));
+	this.root = Helpers.getConfiguration("projectRoot");
+	Helpers.registerCommand(context,"CreateProjects",$bind(this,this.createProjects));
 };
 Commands.__name__ = true;
 Commands.prototype = {
-	registerCommand: function(command,callback) {
-		this.context.subscriptions.push(Vscode.commands.registerCommand("hxmanager." + command,callback));
-		this.output.appendLine("INFO: Command {" + command + "} has been registered");
-	}
-	,CreateHaxeProject: function() {
-		this.ShowInput(Projects.Haxe);
-	}
-	,CreateHaxeFlixelProject: function() {
-		this.ShowInput(Projects.Flixel);
-	}
-	,CreateClass: function(classType) {
-		Vscode.window.showInputBox(this.InputBoxProps()).then(function(input) {
-			if(input == null || input == "" || input == "undefined") {
-				Vscode.window.showInformationMessage("You need to enter a class name!");
-				return;
-			}
-		});
-	}
-	,ProjectManager: function() {
-		var _gthis = this;
-		var projectPath = Vscode.workspace.getConfiguration("hxmanager").get("projectsRoot");
-		var projects = [];
-		if(sys_FileSystem.exists(projectPath)) {
-			var directories = js_node_Fs.readdirSync(projectPath);
-			var _g = 0;
-			while(_g < directories.length) {
-				var dir = directories[_g];
-				++_g;
-				var detail = Constants.Join([projectPath,dir]);
-				projects.push(this.CreateQuickPickItem(dir,null,detail));
-			}
-			Vscode.window.showQuickPick(projects,{ matchOnDetail : true, ignoreFocusOut : true}).then(function(resolve) {
-				var folders = [];
-				var directories1 = js_node_Fs.readdirSync(resolve.detail);
-				var opened = false;
-				var _g1 = 0;
-				while(_g1 < directories1.length) {
-					var project = directories1[_g1];
-					++_g1;
-					if(project.indexOf(".") != -1) {
-						opened = true;
-						_gthis.OpenProject(resolve.detail);
-						return;
-					}
-				}
-				if(opened) {
-					return;
-				}
-				var _g2 = 0;
-				while(_g2 < directories1.length) {
-					var dir1 = directories1[_g2];
-					++_g2;
-					var detail1 = Constants.Join([resolve.detail,dir1]);
-					folders.push(_gthis.CreateQuickPickItem(dir1,null,detail1));
-				}
-				Vscode.window.showQuickPick(folders,{ matchOnDetail : true, ignoreFocusOut : true}).then(function(resolve1) {
-					_gthis.OpenProject(resolve1.detail);
-				});
-			});
+	createProjects: function() {
+		var items = [];
+		var _g = 0;
+		var _g1 = system_enums_EProject.__empty_constructs__;
+		while(_g < _g1.length) {
+			var type = _g1[_g];
+			++_g;
+			items.push(Helpers.quickPickItem(type[0]));
 		}
-	}
-	,CreateQuickPickItem: function(label,description,detail) {
-		var item = { label : label, description : description, detail : detail};
-		return item;
-	}
-	,ShowInput: function(projectType) {
-		var _gthis = this;
-		Vscode.window.showInputBox(this.InputBoxProps()).then(function(input) {
-			if(input == null || input == "" || input == "undefined") {
-				Vscode.window.showInformationMessage("You need to enter a project name!");
-				return;
-			}
-			_gthis.parse.Project(input,projectType);
-			Vscode.window.showInformationMessage("Project " + input + " was created!");
-			var location = Vscode.workspace.getConfiguration("hxmanager").get("projectsRoot");
-			var path = Constants.Join([location,projectType[0],input]);
-			_gthis.OpenProject(path);
+		Vscode.window.showQuickPick(items,{ ignoreFocusOut : true}).then(function(resolve) {
+			haxe_Log.trace(resolve,{ fileName : "Commands.hx", lineNumber : 46, className : "Commands", methodName : "createProjects"});
 		});
-	}
-	,OpenProject: function(src) {
-		var uri = vscode_Uri.file(src);
-		var newWindow = Vscode.workspace.getConfiguration("hxmanager").get("newWindow");
-		Vscode.commands.executeCommand("vscode.openFolder",uri,newWindow);
-	}
-	,ClassHaxe: function() {
-	}
-	,InputBoxProps: function() {
-		return { prompt : "Project Name", placeHolder : "Type a name for the project"};
 	}
 	,__class__: Commands
 };
@@ -530,6 +452,7 @@ Projects.Haxe.__enum__ = Projects;
 Projects.Flixel = ["Flixel",1];
 Projects.Flixel.toString = $estr;
 Projects.Flixel.__enum__ = Projects;
+Projects.__empty_constructs__ = [Projects.Haxe,Projects.Flixel];
 var Classes = { __ename__ : true, __constructs__ : ["Haxe","FlixelState","FlixelSprite"] };
 Classes.Haxe = ["Haxe",0];
 Classes.Haxe.toString = $estr;
@@ -540,6 +463,7 @@ Classes.FlixelState.__enum__ = Classes;
 Classes.FlixelSprite = ["FlixelSprite",2];
 Classes.FlixelSprite.toString = $estr;
 Classes.FlixelSprite.__enum__ = Classes;
+Classes.__empty_constructs__ = [Classes.Haxe,Classes.FlixelState,Classes.FlixelSprite];
 var Events = function(context,output) {
 	var _gthis = this;
 	this.output = output;
@@ -565,14 +489,35 @@ Events.prototype = {
 };
 var Helpers = function() { };
 Helpers.__name__ = true;
+Helpers.getConfiguration = function(value,source) {
+	if(source == null) {
+		source = "hxmanager";
+	}
+	return Vscode.workspace.getConfiguration(source).get(value);
+};
+Helpers.registerCommand = function(context,name,event) {
+	context.subscriptions.push(Vscode.commands.registerCommand("hxmanager." + name,event));
+};
+Helpers.showInput = function(options,onResolve,onReject) {
+	Vscode.window.showInputBox(options).then(onResolve,onReject);
+};
+Helpers.quickPickItem = function(label,description,detail) {
+	return { label : label, description : description, detail : detail};
+};
+Helpers.openProject = function(source,newWindow) {
+	if(newWindow == null) {
+		newWindow = Vscode.workspace.getConfiguration("hxmanager").get("newWindow");
+	}
+	var uri = vscode_Uri.file(source);
+	Vscode.commands.executeCommand("vscode.openFolder",uri,newWindow);
+};
 Helpers.copyFileSync = function(source,target) {
-	var targetFile = target;
 	if(sys_FileSystem.exists(target)) {
 		if(js_node_Fs.lstatSync(target).isDirectory()) {
-			targetFile = js_node_Path.join(target,js_node_Path.basename(source));
+			target = js_node_Path.join(target,js_node_Path.basename(source));
 		}
 	}
-	js_node_Fs.writeFileSync(targetFile,js_node_Fs.readFileSync(source));
+	js_node_Fs.writeFileSync(target,js_node_Fs.readFileSync(source));
 };
 Helpers.copyFolderRecursiveSync = function(source,target) {
 	var files = [];
@@ -889,6 +834,7 @@ haxe__$Template_TemplateExpr.OpStr = function(str) { var $x = ["OpStr",3,str]; $
 haxe__$Template_TemplateExpr.OpBlock = function(l) { var $x = ["OpBlock",4,l]; $x.__enum__ = haxe__$Template_TemplateExpr; $x.toString = $estr; return $x; };
 haxe__$Template_TemplateExpr.OpForeach = function(expr,loop) { var $x = ["OpForeach",5,expr,loop]; $x.__enum__ = haxe__$Template_TemplateExpr; $x.toString = $estr; return $x; };
 haxe__$Template_TemplateExpr.OpMacro = function(name,params) { var $x = ["OpMacro",6,name,params]; $x.__enum__ = haxe__$Template_TemplateExpr; $x.toString = $estr; return $x; };
+haxe__$Template_TemplateExpr.__empty_constructs__ = [];
 var haxe_Template = function(str) {
 	var tokens = this.parseTokens(str);
 	this.expr = this.parseBlock(tokens);
@@ -1395,6 +1341,14 @@ sys_FileSystem.createDirectory = function(path) {
 		}
 	}
 };
+var system_enums_EProject = { __ename__ : true, __constructs__ : ["Haxe","Flixel"] };
+system_enums_EProject.Haxe = ["Haxe",0];
+system_enums_EProject.Haxe.toString = $estr;
+system_enums_EProject.Haxe.__enum__ = system_enums_EProject;
+system_enums_EProject.Flixel = ["Flixel",1];
+system_enums_EProject.Flixel.toString = $estr;
+system_enums_EProject.Flixel.__enum__ = system_enums_EProject;
+system_enums_EProject.__empty_constructs__ = [system_enums_EProject.Haxe,system_enums_EProject.Flixel];
 var vscode_Uri = require("vscode").Uri;
 var $_, $fid = 0;
 function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; }
