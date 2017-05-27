@@ -40,14 +40,11 @@ Commands.prototype = {
 				}
 				var type1 = resolve.label;
 				var source = Helpers.projectPath(type1);
-				var input = Helpers.homeRoot([type1,type1]);
+				var input = Helpers.homeRoot([type1]);
+				var rename = Helpers.homeRoot([type1,type1]);
 				var output = Helpers.homeRoot([type1,name]);
-				var rename_source = Helpers.homeRoot([type1,name]);
-				haxe_Log.trace(source,{ fileName : "Commands.hx", lineNumber : 82, className : "Commands", methodName : "createProjects"});
-				haxe_Log.trace(input,{ fileName : "Commands.hx", lineNumber : 83, className : "Commands", methodName : "createProjects"});
-				haxe_Log.trace(output,{ fileName : "Commands.hx", lineNumber : 84, className : "Commands", methodName : "createProjects"});
-				Helpers.copyFolders(source,input);
-				Helpers.renameDirectory(input,output);
+				Helpers.copyFolderRecursiveSync(source,input);
+				Helpers.renameDirectory(rename,output);
 				var root_dir = Helpers.homeRoot([type1,name]);
 				var project_xml = Constants.Join([root_dir,"Project.xml"]);
 				if(Helpers.pathExists(project_xml)) {
@@ -58,10 +55,11 @@ Commands.prototype = {
 					js_node_Fs.writeFileSync(project_xml,content);
 				}
 				if(Helpers.pathExists(root_dir)) {
-					haxe_Log.trace("Project " + input + " created",{ fileName : "Commands.hx", lineNumber : 121, className : "Commands", methodName : "createProjects"});
+					haxe_Log.trace("name: " + name,{ fileName : "Commands.hx", lineNumber : 109, className : "Commands", methodName : "createProjects"});
+					haxe_Log.trace("Project " + name + " created",{ fileName : "Commands.hx", lineNumber : 110, className : "Commands", methodName : "createProjects"});
 					return;
 				}
-				haxe_Log.trace("Failed to create the project",{ fileName : "Commands.hx", lineNumber : 125, className : "Commands", methodName : "createProjects"});
+				haxe_Log.trace("Failed to create the project",{ fileName : "Commands.hx", lineNumber : 114, className : "Commands", methodName : "createProjects"});
 				return;
 			};
 			var error = function(response) {
@@ -71,26 +69,35 @@ Commands.prototype = {
 		});
 	}
 	,projectManager: function() {
-		var projectPath = Vscode.workspace.getConfiguration("hxmanager").get("projectsRoot");
 		var projects = [];
-		if(sys_FileSystem.exists(projectPath)) {
-			var directories = js_node_Fs.readdirSync(projectPath);
+		var homeRoot = Helpers.getConfiguration("projectsRoot");
+		if(Helpers.pathExists(homeRoot)) {
+			var dirs = js_node_Fs.readdirSync(homeRoot);
+			if(dirs.length == 0) {
+				Vscode.window.showInformationMessage("No projects to show");
+				return;
+			}
 			var _g = 0;
-			while(_g < directories.length) {
-				var dir = directories[_g];
+			while(_g < dirs.length) {
+				var dir = dirs[_g];
 				++_g;
-				var detail = Constants.Join([projectPath,dir]);
+				var detail = Helpers.homeRoot([dir]);
 				projects.push(Helpers.quickPickItem(dir,null,detail));
 			}
 			Vscode.window.showQuickPick(projects,{ matchOnDetail : true, ignoreFocusOut : true}).then(function(resolve) {
 				var folders = [];
-				var directories1 = js_node_Fs.readdirSync(resolve.detail);
+				var more_dirs = js_node_Fs.readdirSync(resolve.detail);
+				if(more_dirs.length == 0) {
+					Vscode.window.showInformationMessage("No projects to show");
+					return;
+				}
 				var opened = false;
 				var _g1 = 0;
-				while(_g1 < directories1.length) {
-					var project = directories1[_g1];
+				while(_g1 < more_dirs.length) {
+					var project = more_dirs[_g1];
 					++_g1;
-					if(project.indexOf(".") != -1) {
+					var location = Constants.Join([resolve.detail,project]);
+					if(!js_node_Fs.statSync(location).isDirectory()) {
 						opened = true;
 						Helpers.openProject(resolve.detail);
 						return;
@@ -100,8 +107,8 @@ Commands.prototype = {
 					return;
 				}
 				var _g2 = 0;
-				while(_g2 < directories1.length) {
-					var dir1 = directories1[_g2];
+				while(_g2 < more_dirs.length) {
+					var dir1 = more_dirs[_g2];
 					++_g2;
 					var detail1 = Constants.Join([resolve.detail,dir1]);
 					folders.push(Helpers.quickPickItem(dir1,null,detail1));
@@ -623,14 +630,11 @@ Helpers.copyFileSync = function(source,target) {
 	}
 	js_node_Fs.writeFileSync(target,js_node_Fs.readFileSync(source));
 };
-Helpers.copyFolders = function(source,target) {
+Helpers.copyFolderRecursiveSync = function(source,target,callback) {
 	var files = [];
 	var targetFolder = js_node_Path.join(target,js_node_Path.basename(source));
-	haxe_Log.trace(source,{ fileName : "Helpers.hx", lineNumber : 141, className : "Helpers", methodName : "copyFolders"});
-	haxe_Log.trace(target,{ fileName : "Helpers.hx", lineNumber : 142, className : "Helpers", methodName : "copyFolders"});
-	haxe_Log.trace(targetFolder,{ fileName : "Helpers.hx", lineNumber : 143, className : "Helpers", methodName : "copyFolders"});
-	if(!sys_FileSystem.exists(target)) {
-		js_node_Fs.mkdirSync(target);
+	if(!sys_FileSystem.exists(targetFolder)) {
+		js_node_Fs.mkdirSync(targetFolder);
 	}
 	if(js_node_Fs.lstatSync(source).isDirectory()) {
 		files = js_node_Fs.readdirSync(source);
@@ -640,9 +644,9 @@ Helpers.copyFolders = function(source,target) {
 			++_g;
 			var curSource = js_node_Path.join(source,file);
 			if(js_node_Fs.lstatSync(curSource).isDirectory()) {
-				Helpers.copyFolders(curSource,target);
+				Helpers.copyFolderRecursiveSync(curSource,targetFolder);
 			} else {
-				Helpers.copyFileSync(curSource,target);
+				Helpers.copyFileSync(curSource,targetFolder);
 			}
 		}
 	}
@@ -830,7 +834,7 @@ Parse.prototype = {
 		js_node_Fs.renameSync(original,destination);
 	}
 	,MoveDirectory: function(original,destination) {
-		Helpers.copyFolders(original,destination);
+		Helpers.copyFolderRecursiveSync(original,destination);
 	}
 	,GetFileContents: function(path) {
 		return js_node_Fs.readFileSync(path,{ encoding : "utf8"});

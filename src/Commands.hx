@@ -76,24 +76,12 @@ class Commands {
                     var type = resolve.label;
                     
                     var source = Helpers.projectPath(type);
-                    var input = Helpers.homeRoot([type, type]);
+                    var input = Helpers.homeRoot([type]);
+                    var rename = Helpers.homeRoot([type, type]);
                     var output = Helpers.homeRoot([type, name]);
 
-                    trace(source);
-                    trace(input);
-                    trace(output);
-
-                    /***
-                    * 
-Commands.hx:82: w:/Haxe/VSCode/Haxe-Manager/templates/projects/Flixel/
-Commands.hx:83: W:/Projects/Flixel/Flixel/
-Commands.hx:84: W:/Projects/Flixel/Test/
-WARNING: Promise with no error callback:2
-Object
-Error: ENOENT: no such file or directory, rename 'W:\Projects\Flixel\Test' -> 'W:\Projects\Flixel\Test'
-                    **/
-                    Helpers.copyFolders(source, input);                    
-                    Helpers.renameDirectory(input, output);
+                    Helpers.copyFolderRecursiveSync(source, input);                    
+                    Helpers.renameDirectory(rename, output);
 
                     /**************
                      * @change 
@@ -118,7 +106,8 @@ Error: ENOENT: no such file or directory, rename 'W:\Projects\Flixel\Test' -> 'W
                     }
                     
                     if (Helpers.pathExists(root_dir)) {
-                        trace('Project $input created');
+                        trace('name: $name');
+                        trace('Project $name created');
                         return;
                     }      
                     
@@ -136,41 +125,53 @@ Error: ENOENT: no such file or directory, rename 'W:\Projects\Flixel\Test' -> 'W
     }
 
     /*****
-      * @Rework 
+      * Basic project manager based on the home root. 
+      * Currently doesn't allow more than one sub-folder as a proper
+      * Recursive method has not been implemented
       *****/
     private function projectManager() {
-        var projectPath = workspace.getConfiguration('hxmanager').get('projectsRoot');
         var projects = [];
+        var homeRoot = Helpers.getConfiguration('projectsRoot');
 
-        if (FileSystem.exists(projectPath)) {
-            var directories =  FileSystem.readDirectory(projectPath);
-            for (dir in directories) {
-                var detail = Constants.Join([projectPath, dir]);
+        if (Helpers.pathExists(homeRoot)) {
+            var dirs = FileSystem.readDirectory(homeRoot);
+
+            if (dirs.length == 0) {
+                window.showInformationMessage('No projects to show');
+                return;
+            }
+
+            for (dir in dirs) {
+                var detail = Helpers.homeRoot([dir]);
                 projects.push(Helpers.quickPickItem(dir, null, detail));
             }
 
-
             window.showQuickPick(projects, {matchOnDetail: true, ignoreFocusOut: true}).then(
-                function (resolve) {                    
+                function (resolve) {
                     var folders = [];
-                    var directories = FileSystem.readDirectory(resolve.detail);
-                    
-                    var projects = [];
+                    var more_dirs = FileSystem.readDirectory(resolve.detail);
+
+                    if (more_dirs.length == 0) {
+                        window.showInformationMessage('No projects to show');
+                        return;
+                    }
+
                     var opened = false;
-                    for (project in directories) {
-                        if (project.indexOf('.') != -1) {
+
+                    for (project in more_dirs) {
+                        var location = Constants.Join([resolve.detail, project]);
+
+                        if (!FileSystem.isDirectory(location)){
                             opened = true;
-                            
-                            Helpers.openProject(resolve.detail);                            
+                            Helpers.openProject(resolve.detail);
                             return;
                         }
                     }
 
                     if (opened) return;
 
-                    for (dir in directories) {                     
+                    for (dir in more_dirs) {
                         var detail = Constants.Join([resolve.detail, dir]);
-
                         folders.push(Helpers.quickPickItem(dir, null, detail));                        
                     }
 
@@ -180,9 +181,7 @@ Error: ENOENT: no such file or directory, rename 'W:\Projects\Flixel\Test' -> 'W
                         }
                     );
                 }
-            );            
-
+            );
         }
-
     }
 }

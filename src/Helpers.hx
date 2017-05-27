@@ -133,29 +133,24 @@ class Helpers {
         Fs.writeFileSync(target, Fs.readFileSync(source));
     }
 
-    public static function copyFolders(source, target) {
+    public static function copyFolderRecursiveSync(source, target, ?callback) {
         var files = [];
 
         //check if folder needs to be created or integrated
-        var targetFolder = Path.join(target, Path.basename(source));
-        trace(source);
-        trace(target);
-        trace(targetFolder);
-
-        if (!FileSystem.exists(target)) {
-            Fs.mkdirSync(target);
+        var targetFolder = Path.join(target, Path.basename(source));        
+        if (!FileSystem.exists(targetFolder)) {
+            Fs.mkdirSync(targetFolder);
         }
 
-        //copy
+        //copy  
         if (Fs.lstatSync(source).isDirectory()) {
             files = Fs.readdirSync(source);
-
             for (file in files) {
                 var curSource = Path.join(source, file);
                 if (Fs.lstatSync(curSource).isDirectory()) {
-                    copyFolders(curSource, target);
+                    copyFolderRecursiveSync(curSource, targetFolder);
                 } else {
-                    copyFileSync(curSource, target);
+                    copyFileSync(curSource, targetFolder);
                 }
             }
         }

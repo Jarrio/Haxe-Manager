@@ -1,4 +1,8 @@
 # Features and improvements
+#### 0.2.5
+- [x] Started some code clean up
+- [x] Started documenting the code
+- [x] Added a quick pick selector for creating projects. A neater way of presenting the option
 
 
 #### 0.2.1
