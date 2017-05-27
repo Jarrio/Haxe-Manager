@@ -34,13 +34,13 @@
                 "hxmanager.projectType": {
                     "description": "Used internally to help aid class generation etc",
                     "type":"array",
-                    "default": ["Haxe"],
-                    "definitions": {
-                        
-                    },
-                    "enum": [
-                        "Haxe", "Flixel"
-                    ]                    
+                    "default": ["Haxe"]         
+                },
+
+                "hxmanager.templatePath": {
+                    "description": "Setup an alternative templates source",
+                    "type": "string",
+                    "default": null                    
                 }
             }
         },        

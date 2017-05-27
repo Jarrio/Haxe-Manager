@@ -1,9 +1,9 @@
 # Features and improvements
-#### 0.2.5
+#### 0.3.0
 - [x] Started some code clean up
 - [x] Started documenting the code
 - [x] Added a quick pick selector for creating projects. A neater way of presenting the option
-
+- [x] Added a new setting `templatePath` to allow people to define a different local directory for templates
 
 #### 0.2.1
 - [x] Bug fix: No longer need to reload vscode when setting the source directory

@@ -14,6 +14,7 @@ var Commands = function(context,output) {
 	this.parse = new Parse(output);
 	this.root = Helpers.getConfiguration("projectRoot");
 	this.registerCommands();
+	Constants.set_output(output);
 };
 Commands.__name__ = true;
 Commands.prototype = {
@@ -55,11 +56,11 @@ Commands.prototype = {
 					js_node_Fs.writeFileSync(project_xml,content);
 				}
 				if(Helpers.pathExists(root_dir)) {
-					haxe_Log.trace("name: " + name,{ fileName : "Commands.hx", lineNumber : 109, className : "Commands", methodName : "createProjects"});
-					haxe_Log.trace("Project " + name + " created",{ fileName : "Commands.hx", lineNumber : 110, className : "Commands", methodName : "createProjects"});
+					haxe_Log.trace("name: " + name,{ fileName : "Commands.hx", lineNumber : 110, className : "Commands", methodName : "createProjects"});
+					haxe_Log.trace("Project " + name + " created",{ fileName : "Commands.hx", lineNumber : 111, className : "Commands", methodName : "createProjects"});
 					return;
 				}
-				haxe_Log.trace("Failed to create the project",{ fileName : "Commands.hx", lineNumber : 114, className : "Commands", methodName : "createProjects"});
+				haxe_Log.trace("Failed to create the project",{ fileName : "Commands.hx", lineNumber : 115, className : "Commands", methodName : "createProjects"});
 				return;
 			};
 			var error = function(response) {
@@ -528,6 +529,28 @@ js_Boot.__resolveNativeClass = function(name) {
 var Vscode = require("vscode");
 var Constants = function() { };
 Constants.__name__ = true;
+Constants.__properties__ = {get_project_root:"get_project_root",get_templates_root:"get_templates_root"};
+Constants.set_output = function(out) {
+	Constants.output = out;
+};
+Constants.get_templates_root = function() {
+	var templates = Constants.Join([Constants.extensionRoot,"templates"]);
+	var config = Helpers.getConfiguration("templatePath");
+	if(config != null) {
+		if(Helpers.pathExists(config)) {
+			templates = config;
+		} else {
+			haxe_Log.trace("Error: The path set for the property {templatePath} does not exist. Using default",{ fileName : "Constants.hx", lineNumber : 34, className : "Constants", methodName : "get_templates_root"});
+			Constants.output.appendLine("Error: The path set for the property {templatePath} does not exist. Using default");
+		}
+	}
+	return templates;
+};
+Constants.get_project_root = function() {
+	var templates = Constants.get_templates_root();
+	var projects = Constants.Join([templates,"projects"]);
+	return projects;
+};
 Constants.Join = function(paths) {
 	return Constants.ApplySlash(haxe_io_Path.join(paths));
 };
@@ -579,7 +602,7 @@ Events.prototype = {
 var Helpers = function() { };
 Helpers.__name__ = true;
 Helpers.projectPath = function(type) {
-	var source = Constants.Join([Constants.project_root,type]);
+	var source = Constants.Join([Constants.get_project_root(),type]);
 	if(!Helpers.pathExists(source)) {
 		return null;
 	}
@@ -1479,9 +1502,7 @@ Constants.extensionRoot = Vscode.extensions.getExtension("jarrio.hxmanager").ext
 Constants.templatesRoot = Constants.Join([Constants.extensionRoot,"templates"]);
 Constants.classRoot = Constants.Join([Constants.templatesRoot,"classes"]);
 Constants.projectsRoot = Constants.Join([Constants.templatesRoot,"projects"]);
-Constants.templates_root = Constants.Join([Constants.extensionRoot,"templates"]);
 Constants.class_root = Constants.Join([Constants.templatesRoot,"classes"]);
-Constants.project_root = Constants.Join([Constants.templatesRoot,"projects"]);
 Constants.extension_root = Vscode.extensions.getExtension("jarrio.hxmanager").extensionPath;
 haxe_Template.splitter = new EReg("(::[A-Za-z0-9_ ()&|!+=/><*.\"-]+::|\\$\\$([A-Za-z0-9_-]+)\\()","");
 haxe_Template.expr_splitter = new EReg("(\\(|\\)|[ \r\n\t]*\"[^\"]*\"[ \r\n\t]*|[!+=/><*.&|-]+)","");
