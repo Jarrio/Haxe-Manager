@@ -34,6 +34,7 @@ Commands.prototype = {
 		}
 		Vscode.window.showQuickPick(items,{ ignoreFocusOut : true, placeHolder : "Select project type"}).then(function(resolve) {
 			var input_props = { prompt : "Project name", placeHolder : "Type a name for the project"};
+			var do_not_open = false;
 			var success = function(name) {
 				if(name == null || name == "" || name == "undefined") {
 					Vscode.window.showWarningMessage("A project name is required");
@@ -44,12 +45,24 @@ Commands.prototype = {
 				var input = Helpers.homeRoot([type1]);
 				var rename = Helpers.homeRoot([type1,type1]);
 				var output = Helpers.homeRoot([type1,name]);
-				Helpers.copyFolderRecursiveSync(source,input);
-				Helpers.renameDirectory(rename,output);
+				if(Helpers.pathExists(rename)) {
+					Vscode.window.showErrorMessage("A folder exists with the name - " + type1);
+					_gthis.output.appendLine("Error: Folder exists at " + rename + ". Cannot copy project template to this location.");
+					do_not_open = true;
+					return;
+				}
+				if(Helpers.pathExists(output)) {
+					Vscode.window.showErrorMessage("A project with that name already exists");
+					_gthis.output.appendLine("Error: A project already exists at the location " + output);
+					do_not_open = true;
+					return;
+				}
+				Helpers.copyFolders(source,input);
+				Helpers.renameDirectory(rename,output,_gthis.output);
 				var root_dir = Helpers.homeRoot([type1,name]);
 				var project_xml = Constants.Join([root_dir,"Project.xml"]);
 				_gthis.parse.parseLaunchConfig(root_dir,name);
-				if(Helpers.pathExists(project_xml)) {
+				if(Helpers.pathExists(project_xml) && !do_not_open) {
 					var get_content = js_node_Fs.readFileSync(project_xml,{ encoding : "utf8"});
 					var parse = new haxe_Template(get_content);
 					var data = { name : name, height : 640, width : 640};
@@ -57,11 +70,12 @@ Commands.prototype = {
 					js_node_Fs.writeFileSync(project_xml,content);
 				}
 				if(Helpers.pathExists(root_dir)) {
-					haxe_Log.trace("name: " + name,{ fileName : "Commands.hx", lineNumber : 112, className : "Commands", methodName : "createProjects"});
-					haxe_Log.trace("Project " + name + " created",{ fileName : "Commands.hx", lineNumber : 113, className : "Commands", methodName : "createProjects"});
+					Helpers.openProject(root_dir,true);
+					haxe_Log.trace("name: " + name,{ fileName : "Commands.hx", lineNumber : 129, className : "Commands", methodName : "createProjects"});
+					haxe_Log.trace("Project " + name + " created",{ fileName : "Commands.hx", lineNumber : 130, className : "Commands", methodName : "createProjects"});
 					return;
 				}
-				haxe_Log.trace("Failed to create the project",{ fileName : "Commands.hx", lineNumber : 117, className : "Commands", methodName : "createProjects"});
+				haxe_Log.trace("Failed to create the project",{ fileName : "Commands.hx", lineNumber : 134, className : "Commands", methodName : "createProjects"});
 				return;
 			};
 			var error = function(response) {
@@ -638,12 +652,23 @@ Helpers.quickPickItem = function(label,description,detail) {
 };
 Helpers.openProject = function(source,newWindow) {
 	if(newWindow == null) {
+		haxe_Log.trace("Here",{ fileName : "Helpers.hx", lineNumber : 109, className : "Helpers", methodName : "openProject"});
 		newWindow = Vscode.workspace.getConfiguration("hxmanager").get("newWindow");
 	}
+	haxe_Log.trace("Here",{ fileName : "Helpers.hx", lineNumber : 113, className : "Helpers", methodName : "openProject"});
 	var uri = vscode_Uri.file(source);
-	Vscode.commands.executeCommand("vscode.openFolder",uri,newWindow);
+	Vscode.commands.executeCommand("vscode.openFolder",uri,newWindow).then(function(resolve) {
+		haxe_Log.trace("Here",{ fileName : "Helpers.hx", lineNumber : 117, className : "Helpers", methodName : "openProject"});
+	},function(reject) {
+		haxe_Log.trace("error: " + reject,{ fileName : "Helpers.hx", lineNumber : 121, className : "Helpers", methodName : "openProject"});
+	});
 };
-Helpers.renameDirectory = function(source,destination) {
+Helpers.renameDirectory = function(source,destination,output) {
+	if(Helpers.pathExists(destination)) {
+		Vscode.window.showErrorMessage("A project already exists with that name");
+		output.appendLine("Error: A folder exists at the path {" + destination + "}");
+		return;
+	}
 	js_node_Fs.renameSync(source,destination);
 };
 Helpers.copyFileSync = function(source,target) {
@@ -654,7 +679,7 @@ Helpers.copyFileSync = function(source,target) {
 	}
 	js_node_Fs.writeFileSync(target,js_node_Fs.readFileSync(source));
 };
-Helpers.copyFolderRecursiveSync = function(source,target,callback) {
+Helpers.copyFolders = function(source,target,callback) {
 	var files = [];
 	var targetFolder = js_node_Path.join(target,js_node_Path.basename(source));
 	if(!sys_FileSystem.exists(targetFolder)) {
@@ -668,7 +693,7 @@ Helpers.copyFolderRecursiveSync = function(source,target,callback) {
 			++_g;
 			var curSource = js_node_Path.join(source,file);
 			if(js_node_Fs.lstatSync(curSource).isDirectory()) {
-				Helpers.copyFolderRecursiveSync(curSource,targetFolder);
+				Helpers.copyFolders(curSource,targetFolder);
 			} else {
 				Helpers.copyFileSync(curSource,targetFolder);
 			}
@@ -864,7 +889,7 @@ Parse.prototype = {
 		js_node_Fs.renameSync(original,destination);
 	}
 	,MoveDirectory: function(original,destination) {
-		Helpers.copyFolderRecursiveSync(original,destination);
+		Helpers.copyFolders(original,destination);
 	}
 	,GetFileContents: function(path) {
 		return js_node_Fs.readFileSync(path,{ encoding : "utf8"});

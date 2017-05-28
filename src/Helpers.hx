@@ -106,11 +106,21 @@ class Helpers {
      **/
     public static function openProject(source:String, newWindow:Null<Bool> = null) {
         if (newWindow == null) {
+            trace('Here');
             newWindow = workspace.getConfiguration('hxmanager').get('newWindow');            
         }
         
+        trace('Here');
         var uri = vscode.Uri.file(source);
-        commands.executeCommand("vscode.openFolder", uri, newWindow);        
+        commands.executeCommand("vscode.openFolder", uri, newWindow).then(
+            function (resolve) {
+                trace('Here');
+            },
+
+            function (reject) {
+                trace('error: $reject');
+            }
+        );     
     }
 
     /**
@@ -118,7 +128,13 @@ class Helpers {
      *  @param source - Original folder
      *  @param destination - Renamed folder
      **/
-    public static function renameDirectory(source:String, destination:String) {
+    public static function renameDirectory(source:String, destination:String, output:OutputChannel) {         
+        if (pathExists(destination)) {
+            window.showErrorMessage('A project already exists with that name');
+            output.appendLine('Error: A folder exists at the path {$destination}');
+            return;
+        }
+
         FileSystem.rename(source, destination);
     }
 
@@ -133,7 +149,7 @@ class Helpers {
         Fs.writeFileSync(target, Fs.readFileSync(source));
     }
 
-    public static function copyFolderRecursiveSync(source, target, ?callback) {
+    public static function copyFolders(source, target, ?callback) {
         var files = [];
 
         //check if folder needs to be created or integrated
@@ -148,7 +164,7 @@ class Helpers {
             for (file in files) {
                 var curSource = Path.join(source, file);
                 if (Fs.lstatSync(curSource).isDirectory()) {
-                    copyFolderRecursiveSync(curSource, targetFolder);
+                    copyFolders(curSource, targetFolder );
                 } else {
                     copyFileSync(curSource, targetFolder);
                 }

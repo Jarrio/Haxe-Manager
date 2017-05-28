@@ -68,6 +68,8 @@ class Commands {
                     placeHolder: "Type a name for the project"
                 }
 
+                var do_not_open = false;
+
                 function success(name:Null<String>) {
                     if (name == null || name == "" || name == "undefined") {
                         window.showWarningMessage('A project name is required');
@@ -81,8 +83,22 @@ class Commands {
                     var rename = Helpers.homeRoot([type, type]);
                     var output = Helpers.homeRoot([type, name]);
 
-                    Helpers.copyFolderRecursiveSync(source, input);                    
-                    Helpers.renameDirectory(rename, output);
+                    if (Helpers.pathExists(rename)) {
+                        window.showErrorMessage('A folder exists with the name - $type');
+                        this.output.appendLine('Error: Folder exists at $rename. Cannot copy project template to this location.');
+                        do_not_open = true;
+                        return;
+                    }
+
+                    if (Helpers.pathExists(output)) {
+                        window.showErrorMessage('A project with that name already exists');
+                        this.output.appendLine('Error: A project already exists at the location $output');
+                        do_not_open = true;
+                        return;
+                    }
+
+                    Helpers.copyFolders(source, input);                    
+                    Helpers.renameDirectory(rename, output, this.output);
 
                     /**************
                      * @change 
@@ -94,7 +110,7 @@ class Commands {
 
                     parse.parseLaunchConfig(root_dir, name);
 
-                    if(Helpers.pathExists(project_xml)) {
+                    if(Helpers.pathExists(project_xml) && !do_not_open) {
                         var get_content = File.getContent(project_xml);
                         var parse = new Template(get_content);
 
@@ -109,6 +125,7 @@ class Commands {
                     }
                     
                     if (Helpers.pathExists(root_dir)) {
+                        Helpers.openProject(root_dir, true);
                         trace('name: $name');
                         trace('Project $name created');
                         return;
