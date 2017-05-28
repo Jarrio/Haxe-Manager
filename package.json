@@ -7,7 +7,7 @@
         "url": "https://github.com/Jarrio/Haxe-Manager.git"
     },
     "icon": "images/haxe-logo.png",
-    "version": "0.2.1",
+    "version": "0.3.0",
     "engines": {
         "vscode": "^1.4.0"
     },
