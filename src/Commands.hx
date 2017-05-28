@@ -92,6 +92,8 @@ class Commands {
                     var root_dir = Helpers.homeRoot([type, name]);
                     var project_xml = Constants.Join([root_dir, 'Project.xml']);
 
+                    parse.parseLaunchConfig(root_dir, name);
+
                     if(Helpers.pathExists(project_xml)) {
                         var get_content = File.getContent(project_xml);
                         var parse = new Template(get_content);

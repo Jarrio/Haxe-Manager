@@ -48,6 +48,7 @@ Commands.prototype = {
 				Helpers.renameDirectory(rename,output);
 				var root_dir = Helpers.homeRoot([type1,name]);
 				var project_xml = Constants.Join([root_dir,"Project.xml"]);
+				_gthis.parse.parseLaunchConfig(root_dir,name);
 				if(Helpers.pathExists(project_xml)) {
 					var get_content = js_node_Fs.readFileSync(project_xml,{ encoding : "utf8"});
 					var parse = new haxe_Template(get_content);
@@ -56,11 +57,11 @@ Commands.prototype = {
 					js_node_Fs.writeFileSync(project_xml,content);
 				}
 				if(Helpers.pathExists(root_dir)) {
-					haxe_Log.trace("name: " + name,{ fileName : "Commands.hx", lineNumber : 110, className : "Commands", methodName : "createProjects"});
-					haxe_Log.trace("Project " + name + " created",{ fileName : "Commands.hx", lineNumber : 111, className : "Commands", methodName : "createProjects"});
+					haxe_Log.trace("name: " + name,{ fileName : "Commands.hx", lineNumber : 112, className : "Commands", methodName : "createProjects"});
+					haxe_Log.trace("Project " + name + " created",{ fileName : "Commands.hx", lineNumber : 113, className : "Commands", methodName : "createProjects"});
 					return;
 				}
-				haxe_Log.trace("Failed to create the project",{ fileName : "Commands.hx", lineNumber : 115, className : "Commands", methodName : "createProjects"});
+				haxe_Log.trace("Failed to create the project",{ fileName : "Commands.hx", lineNumber : 117, className : "Commands", methodName : "createProjects"});
 				return;
 			};
 			var error = function(response) {
@@ -951,6 +952,15 @@ Parse.prototype = {
 	,CreateQuickPickItem: function(label,description,detail) {
 		var item = { label : label, description : description, detail : detail};
 		return item;
+	}
+	,parseLaunchConfig: function(path,name) {
+		var path1 = Constants.Join([path,".vscode","launch.json"]);
+		if(Helpers.pathExists(path1)) {
+			var get_file = js_node_Fs.readFileSync(path1,{ encoding : "utf8"});
+			var template = new haxe_Template(get_file);
+			var data = { name : name};
+			js_node_Fs.writeFileSync(path1,template.execute(data));
+		}
 	}
 	,__class__: Parse
 };

@@ -242,4 +242,23 @@ class Parse {
         
         return "";
     }
+
+    /**
+     * Temporary placement
+     **/
+    public function parseLaunchConfig(path:String, name:String) {
+        var path = Constants.Join([path, '.vscode', 'launch.json']);
+        
+        if (Helpers.pathExists(path)) {
+            var get_file = File.getContent(path);
+
+            var template = new Template(get_file);
+
+            var data = {
+                name: name
+            }
+
+            File.saveContent(path, template.execute(data));            
+        }        
+    }
 }

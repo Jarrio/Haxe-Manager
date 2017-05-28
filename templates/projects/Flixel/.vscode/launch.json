@@ -5,32 +5,32 @@
 			"name": "Flash",
 			"type": "fdb",
 			"request": "launch",
-			"program": "${workspaceRoot}/export/flash/bin/${APPLICATION_FILE}.swf"
+			"program": "${workspaceRoot}/export/flash/bin/::name::.swf"
 		},
 		{
 			"name": "Flash (+rebuild)",
 			"type": "fdb",
 			"request": "launch",
-			"program": "${workspaceRoot}/export/flash/bin/${APPLICATION_FILE}.swf",
+			"program": "${workspaceRoot}/export/flash/bin/::name::.swf",
 			"preLaunchTask": "flash debug (build only)"
 		},
 		{
 			"name": "Windows",
 			"type": "hxcpp",
 			"request": "launch",
-			"program": "${workspaceRoot}/export/windows/cpp/bin/${APPLICATION_FILE}.exe"
+			"program": "${workspaceRoot}/export/windows/cpp/bin/::name::.exe"
 		},
 		{
 			"name": "Linux",
 			"type": "hxcpp",
 			"request": "launch",
-			"program": "${workspaceRoot}/export/linux/cpp/bin/${APPLICATION_FILE}.exe"
+			"program": "${workspaceRoot}/export/linux64/cpp/bin/::name::"
 		},
 		{
 			"name": "Mac",
 			"type": "hxcpp",
 			"request": "launch",
-			"program": "${workspaceRoot}/export/mac64/cpp/bin/${APPLICATION_FILE}.app/Contents/MacOS/${APPLICATION_FILE}"
+			"program": "${workspaceRoot}/export/mac64/cpp/bin/::name::.app/Contents/MacOS/::name::"
 		}
 	]
 }
