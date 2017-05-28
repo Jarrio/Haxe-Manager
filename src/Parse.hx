@@ -1,5 +1,7 @@
 package;
 
+import vscode.Position;
+import vscode.Range;
 import Vscode.*;
 import vscode.QuickPickItem;
 import vscode.OutputChannel;
@@ -19,19 +21,19 @@ import Typedefs.ClassTemplate;
 class Parse {
 
     public var projectType:Projects;
-    public var output:OutputChannel;
+    public static var output:OutputChannel;
     private var save_location:String;
 
-    public function new(output:OutputChannel) {
+    public function new(_output:OutputChannel) {
         this.save_location = workspace.getConfiguration('hxmanager').get('projectsRoot');
-        this.output = output;
+        output = _output;
     }
 
     public function Project(name:String, project:Projects) {
         this.projectType = project;
 
         if (!FileSystem.exists(this.save_location)) {
-            this.output.appendLine("ERROR: Projects directory is not set or does not exist");
+            output.appendLine("ERROR: Projects directory is not set or does not exist");
             return;
         }
 
@@ -120,11 +122,40 @@ class Parse {
                     name = resolve.label;
                     var name = resolve.label;
                     var type = resolve.detail;
+                    var contents = null;
 
                     template = Constants.Join([Constants.classRoot, type, '$name.hx']);
-                    var contents = this.ParseTemplate(template, path);
+                    
+                    var editor = window.activeTextEditor;
 
-                    sys.io.File.saveContent(path, contents);
+                    if (editor == null || editor.document.uri.fsPath != path) {                        
+                        output.appendLine('File does not exist or file path is invalid');
+                        output.appendLine('Fspath: ${editor.document.uri.fsPath}');
+                        output.appendLine('Obtained: ${resolve.detail}');
+
+                        return;
+                    }
+                    
+                    contents = this.ParseTemplate(template, path);
+
+                    if (editor.document.getText(new Range(0, 0, 0, 1)).length > 0) {
+                        output.appendLine('File is not empty');
+
+                        if (editor.document.lineCount > 3) {
+                            output.appendLine('File has been created with more than 3 lines.');
+                            return;
+                        }
+                        
+                        if (editor.document.lineAt(1).text.indexOf('package') != -1) {
+                            contents = this.ParseTemplate(template, path, false);
+                        }
+                    }
+
+                    editor.edit(
+                        function(edit) {
+                            edit.insert(new Position(0, 0), contents);
+                        }
+                    );
                 }
             },
 
@@ -134,18 +165,23 @@ class Parse {
         ); 
     }
 
-    public function ParseTemplate(source:String, destination:String) {
+    public function ParseTemplate(source:String, destination:String, addPackage:Bool = true) {
         if (FileSystem.exists(source) && source != null) {
             var path_data = new Path(destination);
 
-            var contents = sys.io.File.getContent(source);        
+            var contents = sys.io.File.getContent(source);
 
+            var getPackage = null;
             var template = new Template(contents);  
-            var getpackage = ParsePackage(destination);
+            
 
+            if (addPackage) {
+                getPackage = ParsePackage(destination);
+            }
+            
             var contents = {
                 name: path_data.file.split('.')[0],
-                location: getpackage
+                location: getPackage
             };
             
             return template.execute(contents);
@@ -167,6 +203,7 @@ class Parse {
     public static function ParsePackage(directory:String):String {
         var path = new Path(directory);
         var slash = '';
+        
         
         if (path.backslash) {
             slash = '\\';
@@ -194,7 +231,13 @@ class Parse {
                 file_location = file_location.substring(0, file_location.length - 2);
             }
 
-            return " " + file_location;
+            if (file_location == null || file_location == "") {
+                output.appendLine('Package: empty | File: ${window.activeTextEditor.document.fileName}');
+                return "";
+            } else {
+                output.appendLine('Package: $file_location | File: ${window.activeTextEditor.document.fileName}');
+                return " " + file_location;
+            }
         }
         
         return "";

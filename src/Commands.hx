@@ -32,7 +32,7 @@ class Commands {
 
         this.root = Helpers.getConfiguration('projectRoot');
         this.registerCommands();   
-        Constants.set_output(output);
+        Constants.set_output(output); 
     }
 
     /**

@@ -794,9 +794,9 @@ Main.prototype = {
 	,__class__: Main
 };
 Math.__name__ = true;
-var Parse = function(output) {
+var Parse = function(_output) {
 	this.save_location = Vscode.workspace.getConfiguration("hxmanager").get("projectsRoot");
-	this.output = output;
+	Parse.output = _output;
 };
 Parse.__name__ = true;
 Parse.ParsePackage = function(directory) {
@@ -820,7 +820,13 @@ Parse.ParsePackage = function(directory) {
 		if(file_location.charAt(file_location.length - 1) == ".") {
 			file_location = file_location.substring(0,file_location.length - 2);
 		}
-		return " " + file_location;
+		if(file_location == null || file_location == "") {
+			Parse.output.appendLine("Package: empty | File: " + Vscode.window.activeTextEditor.document.fileName);
+			return "";
+		} else {
+			Parse.output.appendLine("Package: " + file_location + " | File: " + Vscode.window.activeTextEditor.document.fileName);
+			return " " + file_location;
+		}
 	}
 	return "";
 };
@@ -828,7 +834,7 @@ Parse.prototype = {
 	Project: function(name,project) {
 		this.projectType = project;
 		if(!sys_FileSystem.exists(this.save_location)) {
-			this.output.appendLine("ERROR: Projects directory is not set or does not exist");
+			Parse.output.appendLine("ERROR: Projects directory is not set or does not exist");
 			return;
 		}
 		this.ParseProjects(name,project);
@@ -897,21 +903,47 @@ Parse.prototype = {
 				name1 = resolve.label;
 				var name2 = resolve.label;
 				var type1 = resolve.detail;
+				var contents = null;
 				template1 = Constants.Join([Constants.classRoot,type1,"" + name2 + ".hx"]);
-				var contents = _gthis.ParseTemplate(template1,path);
-				js_node_Fs.writeFileSync(path,contents);
+				var editor = Vscode.window.activeTextEditor;
+				if(editor == null || editor.document.uri.fsPath != path) {
+					Parse.output.appendLine("File does not exist or file path is invalid");
+					Parse.output.appendLine("Fspath: " + editor.document.uri.fsPath);
+					Parse.output.appendLine("Obtained: " + resolve.detail);
+					return;
+				}
+				contents = _gthis.ParseTemplate(template1,path);
+				if(editor.document.getText(new vscode_Range(0,0,0,1)).length > 0) {
+					Parse.output.appendLine("File is not empty");
+					if(editor.document.lineCount > 3) {
+						Parse.output.appendLine("File has been created with more than 3 lines.");
+						return;
+					}
+					if(editor.document.lineAt(1).text.indexOf("package") != -1) {
+						contents = _gthis.ParseTemplate(template1,path,false);
+					}
+				}
+				editor.edit(function(edit) {
+					edit.insert(new vscode_Position(0,0),contents);
+				});
 			}
 		},function(reject) {
-			haxe_Log.trace("Rejected: " + reject,{ fileName : "Parse.hx", lineNumber : 132, className : "Parse", methodName : "GetClassTemplates"});
+			haxe_Log.trace("Rejected: " + reject,{ fileName : "Parse.hx", lineNumber : 163, className : "Parse", methodName : "GetClassTemplates"});
 		});
 	}
-	,ParseTemplate: function(source,destination) {
+	,ParseTemplate: function(source,destination,addPackage) {
+		if(addPackage == null) {
+			addPackage = true;
+		}
 		if(sys_FileSystem.exists(source) && source != null) {
 			var path_data = new haxe_io_Path(destination);
 			var contents = js_node_Fs.readFileSync(source,{ encoding : "utf8"});
+			var getPackage = null;
 			var template = new haxe_Template(contents);
-			var getpackage = Parse.ParsePackage(destination);
-			var contents1 = { name : path_data.file.split(".")[0], location : getpackage};
+			if(addPackage) {
+				getPackage = Parse.ParsePackage(destination);
+			}
+			var contents1 = { name : path_data.file.split(".")[0], location : getPackage};
 			return template.execute(contents1);
 		}
 		return " ";
@@ -1483,6 +1515,8 @@ system_enums_Project.Flixel = ["Flixel",1];
 system_enums_Project.Flixel.toString = $estr;
 system_enums_Project.Flixel.__enum__ = system_enums_Project;
 system_enums_Project.__empty_constructs__ = [system_enums_Project.Haxe,system_enums_Project.Flixel];
+var vscode_Position = require("vscode").Position;
+var vscode_Range = require("vscode").Range;
 var vscode_Uri = require("vscode").Uri;
 var $_, $fid = 0;
 function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; }
