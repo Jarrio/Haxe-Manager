@@ -6,10 +6,10 @@
 - [x] Started some code clean up
 - [x] Started documenting the code
 - [x] Added a quick pick selector for creating projects. A neater way of presenting the option 
-- [x] Added a new setting `templatePath` to allow people to define a different local directory for templates (#4)
-- [x] Updated the flixel `.vscode` folder with up to date templates (#3)
-- [x] Fixed file has new content bug (#2)
-- [x] Fixed launch config not filling out application name (#7)
+- [x] Added a new setting `templatePath` to allow people to define a different local directory for templates 
+- [x] Updated the flixel `.vscode` folder with up to date templates 
+- [x] Fixed file has new content bug 
+- [x] Fixed launch config not filling out application name 
 
 ---
 #### 0.2.1
