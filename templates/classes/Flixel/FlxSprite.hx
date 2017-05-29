@@ -7,7 +7,6 @@ import flixel.util.FlxColor;
 class ::name:: extends FlxSprite {
     public function new() {
         super();
-
     }
 
     public override function update(elapsed:Float):Void {

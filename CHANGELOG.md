@@ -1,4 +1,7 @@
 # Features and improvements
+####
+- [x] Added some standard imports to flixel class templates
+
 ## 0.3.0
 - [x] Started some code clean up
 - [x] Started documenting the code
