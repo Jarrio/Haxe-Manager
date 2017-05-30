@@ -1,4 +1,4 @@
-package::location::;
+::location::
 
 typedef ::name:: = {
     

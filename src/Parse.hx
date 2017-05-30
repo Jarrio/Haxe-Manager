@@ -43,7 +43,7 @@ class Parse {
     public function ParseProjects(name:String, project:Projects) {
         var type = project.getName();
 
-        var projects = Constants.Join([Constants.projectsRoot, type]);
+        var projects = Constants.Join([Constants.project_root, type]);
         
         var rootProjects = Constants.Join([this.save_location, type]);        
 
@@ -103,7 +103,7 @@ class Parse {
 
         var items = [];
         for (type in projectTypes) {
-            var file_location = Constants.Join([Constants.classRoot, type, 'templates.json']);
+            var file_location = Constants.Join([Constants.class_root, type, 'templates.json']);
 
             var parse_template = Json.parse(sys.io.File.getContent(file_location));
             var templates:Array<ClassTemplate> = parse_template.templates;
@@ -124,7 +124,7 @@ class Parse {
                     var type = resolve.detail;
                     var contents = null;
 
-                    template = Constants.Join([Constants.classRoot, type, '$name.hx']);
+                    template = Constants.Join([Constants.class_root, type, '$name.hx']);
                     
                     var editor = window.activeTextEditor;
 
@@ -137,23 +137,31 @@ class Parse {
                     }
                     
                     contents = this.ParseTemplate(template, path);
+                    
+                    var package_exists = false;
 
                     if (editor.document.getText(new Range(0, 0, 0, 1)).length > 0) {
                         output.appendLine('File is not empty');
 
-                        if (editor.document.lineCount > 3) {
-                            output.appendLine('File has been created with more than 3 lines.');
-                            return;
+                        if (editor.document.lineCount > 2) {
+                            output.appendLine('File has been created with 3 or more lines');
                         }
-                        
-                        if (editor.document.lineAt(1).text.indexOf('package') != -1) {
+
+                        if (editor.document.getText().indexOf('package') > -1) {
+                            package_exists = true;
+                            output.appendLine('Parsing without haxe-manager\'s basic package system');
                             contents = this.ParseTemplate(template, path, false);
+                            
                         }
                     }
 
                     editor.edit(
                         function(edit) {
-                            edit.insert(new Position(0, 0), contents);
+                            if (!package_exists) {
+                                edit.insert(new Position(0, 0), contents);
+                            } else {
+                                edit.insert(new Position(3, 0), contents);
+                            }
                         }
                     );
                 }
@@ -171,7 +179,7 @@ class Parse {
 
             var contents = sys.io.File.getContent(source);
 
-            var getPackage = null;
+            var getPackage = "";
             var template = new Template(contents);  
             
 
@@ -184,7 +192,13 @@ class Parse {
                 location: getPackage
             };
             
-            return template.execute(contents);
+            var execute = template.execute(contents);
+
+            if (!addPackage) {
+                execute = execute.substring(4);
+            }
+
+            return execute;
         }
         
         return " ";
@@ -233,10 +247,10 @@ class Parse {
 
             if (file_location == null || file_location == "") {
                 output.appendLine('Package: empty | File: ${window.activeTextEditor.document.fileName}');
-                return "";
+                return "package;";
             } else {
                 output.appendLine('Package: $file_location | File: ${window.activeTextEditor.document.fileName}');
-                return " " + file_location;
+                return "package " + file_location + ";";
             }
         }
         

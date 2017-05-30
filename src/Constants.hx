@@ -6,25 +6,23 @@ import haxe.io.Path;
 class Constants {
     
     private static var output:OutputChannel;
-
+    
+    /**
+     *  Reference to the output channel to keep track of certain events
+     *  @param out - The output channel
+     **/
     public static function set_output(out:OutputChannel) {
         output = out;
     }
 
-    public static var extensionRoot:String = Vscode.extensions.getExtension('jarrio.hxmanager').extensionPath;
-
-    public static var templatesRoot:String = Join([extensionRoot, "templates"]);
-
-    public static var classRoot:String = Join([templatesRoot, "classes"]);
-
-    public static var projectsRoot:String =  Join([templatesRoot, "projects"]);
-
-
-    //New constants
+    /**
+     * Returns the root folder for templates
+     **/
     public static var templates_root(get, never):String;
-
+    
+    public static var extension_root:String = Vscode.extensions.getExtension('jarrio.hxmanager').extensionPath;
     public static function get_templates_root() {
-        var templates = Join([extensionRoot, "templates"]);
+        var templates = Join([extension_root, "templates"]);
         var config = Helpers.getConfiguration('templatePath');
         
         if (config != null) {
@@ -35,27 +33,46 @@ class Constants {
                 output.appendLine('Error: The path set for the property {templatePath} does not exist. Using default');
             }            
         }
-        
+         
         return templates;
     }
 
+    /**
+     *  Accessor for the project root
+     **/
     public static var project_root(get, never):String;
 
-    public static function get_project_root() {
+    /**
+     *  Getter for the project root directory
+     *  @return String
+     **/
+    public static function get_project_root():String {
         var templates = get_templates_root();
         var projects = Join([templates, 'projects']);
         
         return projects;
     }
 
-    public static var class_root:String = Join([templatesRoot, "classes"]);
-    public static var extension_root:String = Vscode.extensions.getExtension('jarrio.hxmanager').extensionPath;
+    /**
+     *  Returns the class root folder
+     **/
+    public static var class_root:String = Join([templates_root, "classes"]);
+    
 
+    /**
+     *  Attempts to format the path into a consistant way
+     *  @param paths - An array of the folder paths. No slashes are required
+     **/
     public static function Join(paths:Array<String>) {
         return ApplySlash(Path.join(paths));
     }
 
-    public static function ApplySlash(directory:String):String {
+    /**
+     *  Used internally to autp append a slash at the end of processed paths. Used for consistancy
+     *  @param directory - The path to attach a trailing slash
+     *  @return String
+     **/
+    private static function ApplySlash(directory:String):String {
         return Path.addTrailingSlash(directory);
     }
 }

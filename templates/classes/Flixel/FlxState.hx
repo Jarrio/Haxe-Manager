@@ -1,4 +1,4 @@
-package::location::;
+::location::
 
 import flixel.FlxG;
 import flixel.FlxState;

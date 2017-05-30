@@ -1,4 +1,4 @@
-package::location::;
+::location::
 
 enum ::name:: {
     
