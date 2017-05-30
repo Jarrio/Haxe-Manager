@@ -11,8 +11,6 @@ function $extend(from, fields) {
 var Commands = function(context,output) {
 	this.output = output;
 	this.context = context;
-	this.parse = new Parse(output);
-	this.root = Helpers.getConfiguration("projectRoot");
 	this.registerCommands();
 	Constants.set_output(output);
 };
@@ -23,117 +21,12 @@ Commands.prototype = {
 		Helpers.registerCommand(this.context,"ProjectManager",$bind(this,this.projectManager));
 	}
 	,createProjects: function() {
-		var _gthis = this;
-		var items = [];
-		var _g = 0;
-		var _g1 = system_enums_Project.__empty_constructs__;
-		while(_g < _g1.length) {
-			var type = _g1[_g];
-			++_g;
-			items.push(Helpers.quickPickItem(type[0]));
-		}
-		Vscode.window.showQuickPick(items,{ ignoreFocusOut : true, placeHolder : "Select project type"}).then(function(resolve) {
-			var input_props = { prompt : "Project name", placeHolder : "Type a name for the project"};
-			var do_not_open = false;
-			var success = function(name) {
-				if(name == null || name == "" || name == "undefined") {
-					Vscode.window.showWarningMessage("A project name is required");
-					return;
-				}
-				var type1 = resolve.label;
-				var source = Helpers.projectPath(type1);
-				var input = Helpers.homeRoot([type1]);
-				var rename = Helpers.homeRoot([type1,type1]);
-				var output = Helpers.homeRoot([type1,name]);
-				if(Helpers.pathExists(rename)) {
-					Vscode.window.showErrorMessage("A folder exists with the name - " + type1);
-					_gthis.output.appendLine("Error: Folder exists at " + rename + ". Cannot copy project template to this location.");
-					do_not_open = true;
-					return;
-				}
-				if(Helpers.pathExists(output)) {
-					Vscode.window.showErrorMessage("A project with that name already exists");
-					_gthis.output.appendLine("Error: A project already exists at the location " + output);
-					do_not_open = true;
-					return;
-				}
-				Helpers.copyFolders(source,input);
-				Helpers.renameDirectory(rename,output,_gthis.output);
-				var root_dir = Helpers.homeRoot([type1,name]);
-				var project_xml = Constants.Join([root_dir,"Project.xml"]);
-				_gthis.parse.parseLaunchConfig(root_dir,name);
-				if(Helpers.pathExists(project_xml) && !do_not_open) {
-					var get_content = js_node_Fs.readFileSync(project_xml,{ encoding : "utf8"});
-					var parse = new haxe_Template(get_content);
-					var data = { name : name, height : 640, width : 640};
-					var content = parse.execute(data);
-					js_node_Fs.writeFileSync(project_xml,content);
-				}
-				if(Helpers.pathExists(root_dir)) {
-					Helpers.openProject(root_dir,true);
-					haxe_Log.trace("name: " + name,{ fileName : "Commands.hx", lineNumber : 129, className : "Commands", methodName : "createProjects"});
-					haxe_Log.trace("Project " + name + " created",{ fileName : "Commands.hx", lineNumber : 130, className : "Commands", methodName : "createProjects"});
-					return;
-				}
-				haxe_Log.trace("Failed to create the project",{ fileName : "Commands.hx", lineNumber : 134, className : "Commands", methodName : "createProjects"});
-				return;
-			};
-			var error = function(response) {
-				_gthis.output.appendLine("Error - " + Std.string(response));
-			};
-			Helpers.showInput(input_props,success,error);
-		});
+		var projects = new system_commands_CreateProjects(this.output);
+		projects.create();
 	}
 	,projectManager: function() {
-		var projects = [];
-		var homeRoot = Helpers.getConfiguration("projectsRoot");
-		if(Helpers.pathExists(homeRoot)) {
-			var dirs = js_node_Fs.readdirSync(homeRoot);
-			if(dirs.length == 0) {
-				Vscode.window.showInformationMessage("No projects to show");
-				return;
-			}
-			var _g = 0;
-			while(_g < dirs.length) {
-				var dir = dirs[_g];
-				++_g;
-				var detail = Helpers.homeRoot([dir]);
-				projects.push(Helpers.quickPickItem(dir,null,detail));
-			}
-			Vscode.window.showQuickPick(projects,{ matchOnDetail : true, ignoreFocusOut : true}).then(function(resolve) {
-				var folders = [];
-				var more_dirs = js_node_Fs.readdirSync(resolve.detail);
-				if(more_dirs.length == 0) {
-					Vscode.window.showInformationMessage("No projects to show");
-					return;
-				}
-				var opened = false;
-				var _g1 = 0;
-				while(_g1 < more_dirs.length) {
-					var project = more_dirs[_g1];
-					++_g1;
-					var location = Constants.Join([resolve.detail,project]);
-					if(!js_node_Fs.statSync(location).isDirectory()) {
-						opened = true;
-						Helpers.openProject(resolve.detail);
-						return;
-					}
-				}
-				if(opened) {
-					return;
-				}
-				var _g2 = 0;
-				while(_g2 < more_dirs.length) {
-					var dir1 = more_dirs[_g2];
-					++_g2;
-					var detail1 = Constants.Join([resolve.detail,dir1]);
-					folders.push(Helpers.quickPickItem(dir1,null,detail1));
-				}
-				Vscode.window.showQuickPick(folders,{ matchOnDetail : true, ignoreFocusOut : true}).then(function(resolve1) {
-					Helpers.openProject(resolve1.detail);
-				});
-			});
-		}
+		var projects = new system_commands_ProjectManager();
+		projects.manage();
 	}
 	,__class__: Commands
 };
@@ -580,15 +473,15 @@ Helpers.quickPickItem = function(label,description,detail) {
 };
 Helpers.openProject = function(source,newWindow) {
 	if(newWindow == null) {
-		haxe_Log.trace("Here",{ fileName : "Helpers.hx", lineNumber : 109, className : "Helpers", methodName : "openProject"});
+		haxe_Log.trace("Here",{ fileName : "Helpers.hx", lineNumber : 111, className : "Helpers", methodName : "openProject"});
 		newWindow = Vscode.workspace.getConfiguration("hxmanager").get("newWindow");
 	}
-	haxe_Log.trace("Here",{ fileName : "Helpers.hx", lineNumber : 113, className : "Helpers", methodName : "openProject"});
+	haxe_Log.trace("Here",{ fileName : "Helpers.hx", lineNumber : 115, className : "Helpers", methodName : "openProject"});
 	var uri = vscode_Uri.file(source);
 	Vscode.commands.executeCommand("vscode.openFolder",uri,newWindow).then(function(resolve) {
-		haxe_Log.trace("Here",{ fileName : "Helpers.hx", lineNumber : 117, className : "Helpers", methodName : "openProject"});
+		haxe_Log.trace("Here",{ fileName : "Helpers.hx", lineNumber : 119, className : "Helpers", methodName : "openProject"});
 	},function(reject) {
-		haxe_Log.trace("error: " + reject,{ fileName : "Helpers.hx", lineNumber : 121, className : "Helpers", methodName : "openProject"});
+		haxe_Log.trace("error: " + reject,{ fileName : "Helpers.hx", lineNumber : 123, className : "Helpers", methodName : "openProject"});
 	});
 };
 Helpers.renameDirectory = function(source,destination,output) {
@@ -690,25 +583,6 @@ Constants.Join = function(paths) {
 Constants.ApplySlash = function(directory) {
 	return haxe_io_Path.addTrailingSlash(directory);
 };
-var Projects = { __ename__ : true, __constructs__ : ["Haxe","Flixel"] };
-Projects.Haxe = ["Haxe",0];
-Projects.Haxe.toString = $estr;
-Projects.Haxe.__enum__ = Projects;
-Projects.Flixel = ["Flixel",1];
-Projects.Flixel.toString = $estr;
-Projects.Flixel.__enum__ = Projects;
-Projects.__empty_constructs__ = [Projects.Haxe,Projects.Flixel];
-var Classes = { __ename__ : true, __constructs__ : ["Haxe","FlixelState","FlixelSprite"] };
-Classes.Haxe = ["Haxe",0];
-Classes.Haxe.toString = $estr;
-Classes.Haxe.__enum__ = Classes;
-Classes.FlixelState = ["FlixelState",1];
-Classes.FlixelState.toString = $estr;
-Classes.FlixelState.__enum__ = Classes;
-Classes.FlixelSprite = ["FlixelSprite",2];
-Classes.FlixelSprite.toString = $estr;
-Classes.FlixelSprite.__enum__ = Classes;
-Classes.__empty_constructs__ = [Classes.Haxe,Classes.FlixelState,Classes.FlixelSprite];
 var Events = function(context,output) {
 	var _gthis = this;
 	this.output = output;
@@ -813,7 +687,6 @@ var Main = function(context) {
 	this.output = Vscode.window.createOutputChannel("HaxeManager");
 	this.context = context;
 	var projectsRoot = Vscode.workspace.getConfiguration("hxmanager").get("projectsRoot");
-	var seperate = Vscode.workspace.getConfiguration("hxmanager").get("seperateFolders");
 	if(projectsRoot == null) {
 		this.Setup();
 		this.output.show(true);
@@ -831,6 +704,12 @@ Main.main = $hx_exports["activate"] = function(context) {
 };
 Main.prototype = {
 	Load: function() {
+		var config = Helpers.getConfiguration("projectType");
+		haxe_Log.trace("Config: " + config,{ fileName : "Main.hx", lineNumber : 32, className : "Main", methodName : "Load"});
+		if(config == null || config == "" || config == "undefined") {
+			Vscode.workspace.getConfiguration().update("hxmanager.projectType",["Haxe"],true);
+			haxe_Log.trace("Set global templates to Haxe",{ fileName : "Main.hx", lineNumber : 35, className : "Main", methodName : "Load"});
+		}
 		new Events(this.context,this.output);
 		new Commands(this.context,this.output);
 	}
@@ -879,7 +758,7 @@ Parse.ParsePackage = function(directory) {
 			file_location = file_location.substring(0,file_location.length - 2);
 		}
 		if(file_location == null || file_location == "") {
-			Parse.output.appendLine("Package: empty | File: " + Vscode.window.activeTextEditor.document.fileName);
+			Parse.output.appendLine("Package: root | File: " + Vscode.window.activeTextEditor.document.fileName);
 			return "package;";
 		} else {
 			Parse.output.appendLine("Package: " + file_location + " | File: " + Vscode.window.activeTextEditor.document.fileName);
@@ -975,7 +854,7 @@ Parse.prototype = {
 				if(editor.document.getText(new vscode_Range(0,0,0,1)).length > 0) {
 					Parse.output.appendLine("File is not empty");
 					if(editor.document.lineCount > 2) {
-						Parse.output.appendLine("File has been created with 3 or more lines.");
+						Parse.output.appendLine("File has been created with 3 or more lines");
 					}
 					if(editor.document.getText().indexOf("package") > -1) {
 						package_exists = true;
@@ -992,7 +871,7 @@ Parse.prototype = {
 				});
 			}
 		},function(reject) {
-			haxe_Log.trace("Rejected: " + reject,{ fileName : "Parse.hx", lineNumber : 171, className : "Parse", methodName : "GetClassTemplates"});
+			haxe_Log.trace("Rejected: " + reject,{ fileName : "Parse.hx", lineNumber : 167, className : "Parse", methodName : "GetClassTemplates"});
 		});
 	}
 	,ParseTemplate: function(source,destination,addPackage) {
@@ -1552,14 +1431,140 @@ js__$Boot_HaxeError.prototype = $extend(Error.prototype,{
 });
 var js_node_Path = require("path");
 var js_node_buffer_Buffer = require("buffer").Buffer;
-var system_enums_Project = { __ename__ : true, __constructs__ : ["Haxe","Flixel"] };
-system_enums_Project.Haxe = ["Haxe",0];
-system_enums_Project.Haxe.toString = $estr;
-system_enums_Project.Haxe.__enum__ = system_enums_Project;
-system_enums_Project.Flixel = ["Flixel",1];
-system_enums_Project.Flixel.toString = $estr;
-system_enums_Project.Flixel.__enum__ = system_enums_Project;
-system_enums_Project.__empty_constructs__ = [system_enums_Project.Haxe,system_enums_Project.Flixel];
+var system_commands_CreateProjects = function(_output) {
+	system_commands_CreateProjects.output = _output;
+	system_commands_CreateProjects.parse = new Parse(system_commands_CreateProjects.output);
+};
+system_commands_CreateProjects.__name__ = true;
+system_commands_CreateProjects.prototype = {
+	create: function() {
+		var items = [];
+		var _g = 0;
+		var _g1 = system_enums_Projects.__empty_constructs__;
+		while(_g < _g1.length) {
+			var type = _g1[_g];
+			++_g;
+			items.push(Helpers.quickPickItem(type[0]));
+		}
+		Vscode.window.showQuickPick(items,{ ignoreFocusOut : true, placeHolder : "Select project type"}).then(function(resolve) {
+			var input_props = { prompt : "Project name", placeHolder : "Type a name for the project"};
+			var do_not_open = false;
+			var success = function(name) {
+				if(name == null || name == "" || name == "undefined") {
+					Vscode.window.showWarningMessage("A project name is required");
+					return;
+				}
+				var type1 = resolve.label;
+				var source = Helpers.projectPath(type1);
+				var input = Helpers.homeRoot([type1]);
+				var rename = Helpers.homeRoot([type1,type1]);
+				var output_file = Helpers.homeRoot([type1,name]);
+				if(Helpers.pathExists(rename)) {
+					Vscode.window.showErrorMessage("A folder exists with the name - " + type1);
+					system_commands_CreateProjects.output.appendLine("Error: Folder exists at " + rename + ". Cannot copy project template to this location.");
+					do_not_open = true;
+					return;
+				}
+				if(Helpers.pathExists(output_file)) {
+					Vscode.window.showErrorMessage("A project with that name already exists");
+					system_commands_CreateProjects.output.appendLine("Error: A project already exists at the location " + output_file);
+					do_not_open = true;
+					return;
+				}
+				Helpers.copyFolders(source,input);
+				Helpers.renameDirectory(rename,output_file,system_commands_CreateProjects.output);
+				var root_dir = Helpers.homeRoot([type1,name]);
+				var project_xml = Constants.Join([root_dir,"Project.xml"]);
+				system_commands_CreateProjects.parse.parseLaunchConfig(root_dir,name);
+				if(Helpers.pathExists(project_xml) && !do_not_open) {
+					var get_content = js_node_Fs.readFileSync(project_xml,{ encoding : "utf8"});
+					var parse = new haxe_Template(get_content);
+					var data = { name : name, height : 640, width : 640};
+					var content = parse.execute(data);
+					js_node_Fs.writeFileSync(project_xml,content);
+				}
+				if(Helpers.pathExists(root_dir)) {
+					Helpers.openProject(root_dir,true);
+					haxe_Log.trace("name: " + name,{ fileName : "CreateProjects.hx", lineNumber : 102, className : "system.commands.CreateProjects", methodName : "create"});
+					haxe_Log.trace("Project " + name + " created",{ fileName : "CreateProjects.hx", lineNumber : 103, className : "system.commands.CreateProjects", methodName : "create"});
+					return;
+				}
+				haxe_Log.trace("Failed to create the project",{ fileName : "CreateProjects.hx", lineNumber : 107, className : "system.commands.CreateProjects", methodName : "create"});
+				return;
+			};
+			var error = function(response) {
+				system_commands_CreateProjects.output.appendLine("Error - " + Std.string(response));
+			};
+			Helpers.showInput(input_props,success,error);
+		});
+	}
+	,__class__: system_commands_CreateProjects
+};
+var system_commands_ProjectManager = function() {
+};
+system_commands_ProjectManager.__name__ = true;
+system_commands_ProjectManager.prototype = {
+	manage: function() {
+		var projects = [];
+		var homeRoot = Helpers.getConfiguration("projectsRoot");
+		if(Helpers.pathExists(homeRoot)) {
+			var dirs = js_node_Fs.readdirSync(homeRoot);
+			if(dirs.length == 0) {
+				Vscode.window.showInformationMessage("No projects to show");
+				return;
+			}
+			var _g = 0;
+			while(_g < dirs.length) {
+				var dir = dirs[_g];
+				++_g;
+				var detail = Helpers.homeRoot([dir]);
+				projects.push(Helpers.quickPickItem(dir,null,detail));
+			}
+			Vscode.window.showQuickPick(projects,{ matchOnDetail : true, ignoreFocusOut : true}).then(function(resolve) {
+				var folders = [];
+				var more_dirs = js_node_Fs.readdirSync(resolve.detail);
+				if(more_dirs.length == 0) {
+					Vscode.window.showInformationMessage("No projects to show");
+					return;
+				}
+				var opened = false;
+				var _g1 = 0;
+				while(_g1 < more_dirs.length) {
+					var project = more_dirs[_g1];
+					++_g1;
+					var location = Constants.Join([resolve.detail,project]);
+					if(!js_node_Fs.statSync(location).isDirectory()) {
+						opened = true;
+						Helpers.openProject(resolve.detail);
+						return;
+					}
+				}
+				if(opened) {
+					return;
+				}
+				var _g2 = 0;
+				while(_g2 < more_dirs.length) {
+					var dir1 = more_dirs[_g2];
+					++_g2;
+					var detail1 = Constants.Join([resolve.detail,dir1]);
+					folders.push(Helpers.quickPickItem(dir1,null,detail1));
+				}
+				Vscode.window.showQuickPick(folders,{ matchOnDetail : true, ignoreFocusOut : true}).then(function(resolve1) {
+					Helpers.openProject(resolve1.detail);
+				});
+			});
+		}
+	}
+	,__class__: system_commands_ProjectManager
+};
+var system_enums_Projects = { __ename__ : true, __constructs__ : ["Haxe","Flixel"] };
+system_enums_Projects.Haxe = ["Haxe",0];
+system_enums_Projects.Haxe.toString = $estr;
+system_enums_Projects.Haxe.__enum__ = system_enums_Projects;
+system_enums_Projects.Flixel = ["Flixel",1];
+system_enums_Projects.Flixel.toString = $estr;
+system_enums_Projects.Flixel.__enum__ = system_enums_Projects;
+system_enums_Projects.__empty_constructs__ = [system_enums_Projects.Haxe,system_enums_Projects.Flixel];
 var vscode_Position = require("vscode").Position;
 var vscode_Range = require("vscode").Range;
 var vscode_Uri = require("vscode").Uri;

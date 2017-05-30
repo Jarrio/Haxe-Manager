@@ -1,10 +1,8 @@
-enum Projects {
-    Haxe;
-    Flixel;
-}
+package system.enums;
 
 enum Classes {
     Haxe;
     FlixelState;
     FlixelSprite;
 }
+

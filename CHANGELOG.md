@@ -1,5 +1,10 @@
 # Features and improvements
-####
+#### 0.3.2
+- [x] Code cleanup
+- [x] Fixed #8 - Package handling is now done properly
+- [x] 
+
+#### 0.3.1
 - [x] Added some standard imports to flixel class templates
 
 ## 0.3.0

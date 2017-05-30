@@ -1,16 +1,18 @@
 package;
 
-import vscode.OutputChannel;
-import haxe.Constraints.Function;
-import sys.FileSystem;
+import vscode.WorkspaceConfiguration;
 import js.node.Fs;
 import js.node.Path;
-import vscode.QuickPickItem;
-import vscode.InputBoxOptions;
 import Vscode.window;
-import vscode.ExtensionContext;
 import Vscode.commands;
 import Vscode.workspace;
+import vscode.OutputChannel;
+import vscode.QuickPickItem;
+import vscode.InputBoxOptions;
+import vscode.ExtensionContext;
+
+import sys.FileSystem;
+import haxe.Constraints.Function;
 
 class Helpers {
     
@@ -59,7 +61,7 @@ class Helpers {
      *  @param value - The specific setting identifier
      *  @param source - Root access to the setting
      **/
-    public static function getConfiguration(value:String, source:String = 'hxmanager') {
+    public static function getConfiguration(value:String, source:String = 'hxmanager'):String {
         return workspace.getConfiguration(source).get(value);
     }
 

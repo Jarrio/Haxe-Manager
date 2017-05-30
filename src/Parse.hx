@@ -1,22 +1,18 @@
 package;
 
-import vscode.Position;
+import Vscode.window;
+import Vscode.workspace;
 import vscode.Range;
-import Vscode.*;
+import vscode.Position;
 import vscode.QuickPickItem;
 import vscode.OutputChannel;
 
+import sys.io.File;
+import sys.FileSystem;
 import haxe.Json;
 import haxe.io.Path;
 import haxe.Template;
-
-import sys.io.File;
-import sys.FileSystem;
-
-import Constants;
-import Enums.Projects;
-import Typedefs.Flixel;
-import Typedefs.ClassTemplate;
+import system.enums.Projects;
 
 class Parse {
 
@@ -64,7 +60,7 @@ class Parse {
             var project_file = this.GetFileContents(file_path);
             var parse = new Template(project_file);
             
-            var data:Flixel = {
+            var data:TypeDefs.Flixel = {
                 name: name,
                 height: 500,
                 width: 500
@@ -106,7 +102,7 @@ class Parse {
             var file_location = Constants.Join([Constants.class_root, type, 'templates.json']);
 
             var parse_template = Json.parse(sys.io.File.getContent(file_location));
-            var templates:Array<ClassTemplate> = parse_template.templates;
+            var templates:Array<TypeDefs.ClassTemplate> = parse_template.templates;
             
             for (template in templates) {
                 items.push(this.CreateQuickPickItem(template.type, template.description, type));
@@ -246,7 +242,7 @@ class Parse {
             }
 
             if (file_location == null || file_location == "") {
-                output.appendLine('Package: empty | File: ${window.activeTextEditor.document.fileName}');
+                output.appendLine('Package: root | File: ${window.activeTextEditor.document.fileName}');
                 return "package;";
             } else {
                 output.appendLine('Package: $file_location | File: ${window.activeTextEditor.document.fileName}');

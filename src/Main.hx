@@ -14,7 +14,6 @@ class Main {
         this.context = context;     
         
         var projectsRoot = workspace.getConfiguration("hxmanager").get("projectsRoot");
-        var seperate = workspace.getConfiguration('hxmanager').get('seperateFolders');
         
         if (projectsRoot == null) {
             this.Setup();
@@ -29,6 +28,13 @@ class Main {
     }
     
     public function Load() {
+        var config = Helpers.getConfiguration('projectType');
+        trace('Config: $config');
+        if (config == null || config == "" || config == "undefined") {
+            workspace.getConfiguration().update('hxmanager.projectType', ["Haxe"], true);
+            trace('Set global templates to Haxe');
+        }
+
         new Events(context, output);
         new Commands(context, output);
     }
@@ -43,7 +49,6 @@ class Main {
         }
 
         // window.showInformationMessage("Would you like projects to be seperated in the root folder based on project type? (default: Yes)", { modal: true }, 'Yes', 'No').then(
-
 
         window.showInputBox(props).then(
             function (input) {
