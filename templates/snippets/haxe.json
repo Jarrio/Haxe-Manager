@@ -1,0 +1,80 @@
+{
+    "public function": {
+        "prefix": "public function",
+        "body": [
+            "public function ${1:name}(${2:values}):${3:return} {",
+            "\t$4",
+            "}"
+        ],
+        "description": "A public function"
+    },
+
+    "private function": {
+        "prefix": "private function",
+        "body": [
+            "private function ${1:name}(${2:values}):${3:return} {",
+            "\t$4",
+            "}"
+        ],
+        "description": "A private function"
+    },
+
+    "accessor": {
+        "prefix": "accessor",
+        "body":[
+            "public var ${1:name}(get, set):${4:type};",
+            "",
+            "private function set_${1:name}(value:${4:type}):${4:type} {",
+            "\treturn this.${1:name} = value;",
+            "}",
+            "",
+            "private function get_${1:name}():${4:type} {",
+            "\treturn this.${1:name};",
+            "}"
+        ],
+        "description": "A getter and setter with the variable definition"
+    },
+
+    "set": {
+        "prefix": "set",
+        "body": [
+            "private function set_${1:name}(value:${2:type}):${2:return} {",
+            "\treturn this.${1:name} = value;",
+            "}"
+        ],
+        "description": "Create a setter"
+    },
+
+    "get": {
+        "prefix": "get",
+        "body": [
+            "private function get_${1:name}():${2:return} {",
+            "\treturn this.${1:name};",
+            "}"
+        ],
+        "description": "Create a getter"
+    },
+
+    "for loop": {
+        "prefix": "for", 
+        "body":[
+            "for (${1:i} in ${2:value}) {",
+            "\t$3",
+            "}"
+        ],
+        "description": "A for loop"
+    },
+
+    "switch": {
+        "prefix": "switch",
+        "body":[
+            "switch (${1:subject}) {",
+            "\tcase ${2:pattern}:",
+            "\t\t$3",
+            "\tdefault:",
+            "\t\t$4",
+            "}"            
+        ],
+        "description": "A switch case"
+    }
+}

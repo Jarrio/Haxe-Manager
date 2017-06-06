@@ -32,7 +32,7 @@ class Events {
                     );
                 }
             }
-        );              
+        );
     }
 
     public function InputBoxProps():InputBoxOptions {
