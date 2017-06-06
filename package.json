@@ -6,8 +6,11 @@
         "type": "git",
         "url": "https://github.com/Jarrio/Haxe-Manager.git"
     },
+    "keywords": [
+        "haxe", "project manager", "snippets"
+    ],
     "icon": "images/haxe-logo.png",
-    "version": "0.3.2",
+    "version": "0.3.3",
     "engines": {
         "vscode": "^1.4.0"
     },
@@ -16,6 +19,12 @@
     ],
     "main": "./main",
     "contributes": {
+        "snippets": [
+            {
+                "language": "haxe",
+                "path": "./templates/snippets/haxe.json"
+            }
+        ],
         "configuration": {
             "title": "Open in a new window",
             "properties": {
