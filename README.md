@@ -6,6 +6,8 @@ If anybody would like to contribute project templates, I am using Haxe's built i
 
 For now this just helps with boilerplate code :)
 
+I'm slowly working on adding information to the [Wiki](https://github.com/Jarrio/Haxe-Manager/wiki) so if there is anything you don't understand or is missing submit an issue.
+
 Go [here](https://github.com/Jarrio/Haxe-Manager/blob/master/CHANGELOG.md) for a complete changelog
 
 To install the latest stable version go the [vscode marketplace](https://marketplace.visualstudio.com/items?itemName=jarrio.hxmanager)
