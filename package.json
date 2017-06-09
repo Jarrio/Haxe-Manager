@@ -7,7 +7,7 @@
         "url": "https://github.com/Jarrio/Haxe-Manager.git"
     },
     "keywords": [
-        "haxe", "project manager", "snippets", "kha", "haxeflixel", "openfl"
+        "haxe", "snippets", "openfl", "haxeflixel"
     ],
     "icon": "images/haxe-logo.png",
     "version": "0.3.4",
