@@ -7,10 +7,10 @@
         "url": "https://github.com/Jarrio/Haxe-Manager.git"
     },
     "keywords": [
-        "haxe", "project manager", "snippets"
+        "haxe", "project manager", "snippets", "kha", "haxeflixel", "openfl"
     ],
     "icon": "images/haxe-logo.png",
-    "version": "0.3.3",
+    "version": "0.3.4",
     "engines": {
         "vscode": "^1.4.0"
     },
@@ -22,7 +22,7 @@
         "snippets": [
             {
                 "language": "haxe",
-                "path": "./templates/snippets/haxe.json"
+                "path": "./snippets/haxe.json"
             }
         ],
         "configuration": {
@@ -50,6 +50,12 @@
                     "description": "Setup an alternative templates source",
                     "type": "string",
                     "default": null                    
+                },
+
+                "hxmanager.khaPath": {
+                    "description": "Path to Kha source files",
+                    "type": "string",
+                    "default": null
                 }
             }
         },        
@@ -61,6 +67,10 @@
             {
                 "command": "hxmanager.CreateProjects",
                 "title": "Haxe: Create a Project"
+            },            
+            {
+                "command": "hxmanager.SetupKha",
+                "title": "Haxe: Setup Kha Path"
             }            
         ]
     }

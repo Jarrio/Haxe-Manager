@@ -1,4 +1,9 @@
 # Features and improvements
+
+#### 0.3.4
+- [x] Added Kha support. Debugging works on Flash and HTML5, check the wiki for more information
+
+
 #### 0.3.3
 - [x] Added some snippets
 

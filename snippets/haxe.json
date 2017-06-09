@@ -69,11 +69,10 @@
         "prefix": "switch",
         "body":[
             "switch (${1:subject}) {",
-            "\tcase ${2:pattern}:",
-            "\t\t$3",
+            "\tcase ${2:pattern}: $3",
             "\tdefault:",
             "\t\t$4",
-            "}"            
+            "}"
         ],
         "description": "A switch case"
     }

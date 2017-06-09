@@ -38,7 +38,7 @@ class Parse {
 
     public function ParseProjects(name:String, project:Projects) {
         var type = project.getName();
-
+        Constants.set_output(output);
         var projects = Constants.Join([Constants.project_root, type]);
         
         var rootProjects = Constants.Join([this.save_location, type]);        
@@ -223,8 +223,13 @@ class Parse {
 
         var divider = "source";
         
+
         if (path.dir.indexOf(divider) == -1) {
             divider = "src";
+        }
+
+        if (path.dir.indexOf(divider) == -1) {
+            divider = "Sources";
         }
 
         var split = path.dir.split(divider);
@@ -256,7 +261,7 @@ class Parse {
     /**
      * Temporary placement
      **/
-    public function parseLaunchConfig(path:String, name:String) {
+    public static function parseLaunchConfig(path:String, name:String) {
         var path = Constants.Join([path, '.vscode', 'launch.json']);
         
         if (Helpers.pathExists(path)) {

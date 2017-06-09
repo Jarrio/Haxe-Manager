@@ -1,8 +1,12 @@
 package;
 
+import sys.FileSystem;
+import vscode.InputBoxOptions;
 import Helpers;
 import vscode.OutputChannel;
 import vscode.ExtensionContext;
+import Vscode.window;
+import Vscode.workspace;
 import system.commands.CreateProjects;
 import system.commands.ProjectManager;
 
@@ -29,6 +33,7 @@ class Commands {
      **/
     private function registerCommands() {
         Helpers.registerCommand(context, 'CreateProjects', this.createProjects);
+        Helpers.registerCommand(context, 'SetupKha', this.setupKha);
         Helpers.registerCommand(context, 'ProjectManager', this.projectManager);
     }
 
@@ -38,6 +43,35 @@ class Commands {
     private function createProjects() {
         var projects = new CreateProjects(output);
         projects.create();
+    }
+    /**
+     *  Setup Kha
+     **/
+    private function setupKha() {
+        var khaPath = Helpers.getConfiguration('khaPath');
+        if (khaPath == null) {
+            var props:InputBoxOptions = { 
+                prompt: "What is the ROOT directory of kha?",
+                placeHolder: "File path",
+                ignoreFocusOut: true   
+            }
+
+            window.showInputBox(props).then(
+                function(path) {
+                    if (FileSystem.exists(path)) {
+                        path += '\\make';
+
+                        workspace.getConfiguration().update('hxmanager.khaPath', path, true).then(
+                            function (resolve) {
+                                output.appendLine('Set Kha path to {$path}');
+                            }
+                        );
+                    } else {
+
+                    }
+                }
+            );
+        }
     }
 
     /*****

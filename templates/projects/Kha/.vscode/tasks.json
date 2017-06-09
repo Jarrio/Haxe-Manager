@@ -1,0 +1,51 @@
+{
+	"version": "2.0.0",
+	"command": "node",
+	"args": ["::path::"],
+	"tasks": [
+		{
+			"taskName": "windows debug",
+			"suppressTaskName": true,
+			"echoCommand": true,
+			"args": ["windows", "--run", "--debug"],
+			"problemMatcher": "$haxe"
+		},
+		{
+			"taskName": "windows release",
+			"suppressTaskName": true,
+			"echoCommand": true,
+			"args": ["windows", "--run"],
+			"problemMatcher": "$haxe"
+		},
+		{
+			"taskName": "html5 debugger",
+			"suppressTaskName": true,
+			"echoCommand": true,
+			"args": ["html5", "--run", "--debug", "--port 8080", "--server true"],
+			"problemMatcher": "$haxe"
+		},
+		{
+			"taskName": "flash debug",
+			"suppressTaskName": true,
+			"isBuildCommand": true,
+			"echoCommand": true,
+			"args": ["flash", "--run", "--debug"],
+			"problemMatcher": "$haxe"
+		},
+		{
+			"taskName": "flash release",
+			"suppressTaskName": true,
+            "isBuildCommand": false,
+			"args": ["flash", "--run"],
+			"problemMatcher": "$haxe"
+		},
+		{
+			"taskName": "flash debugger",
+			"suppressTaskName": true,
+			"isBuildCommand": true,
+			"echoCommand": true,
+			"args": ["flash", "--compile", "--debug"],
+			"problemMatcher": "$haxe"
+		}	
+    ]
+}

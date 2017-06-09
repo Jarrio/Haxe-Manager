@@ -1,6 +1,8 @@
 package system.enums;
 
 enum Projects {
+    Flixel;    
     Haxe;
-    Flixel;
+
+    Kha;  
 }

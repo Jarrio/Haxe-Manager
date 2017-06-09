@@ -1,0 +1,13 @@
+{
+    "haxe.displayConfigurations": [
+        ["build/project-windows.hxml"],
+        ["build/project-flash.hxml"],
+        ["build/project-linux.hxml"],
+        ["build/project-android.hxml"]
+	],
+	"haxe.diagnosticsPathFilter": "${workspaceRoot}/Sources",
+	"search.exclude": {
+		"build/**/**.hx": true
+	},
+	"hxmanager.projectType": ["Haxe", "Kha"]
+}

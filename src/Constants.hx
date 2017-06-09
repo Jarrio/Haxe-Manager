@@ -28,9 +28,9 @@ class Constants {
         if (config != null) {
             if (Helpers.pathExists(config)) {
                 templates = config;
+                // output.appendLine('Using custom templates directory: ${config}');
             } else {
-                trace('Error: The path set for the property {templatePath} does not exist. Using default');
-                output.appendLine('Error: The path set for the property {templatePath} does not exist. Using default');
+                // output.appendLine('Error: The path set for the property {templatePath} does not exist. Using default');
             }            
         }
          

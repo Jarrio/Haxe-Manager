@@ -1,11 +1,15 @@
 package system.commands;
 
+import sys.FileSystem;
+import vscode.InputBoxOptions;
 import haxe.Template;
 import sys.io.File;
 import system.enums.Projects;
 import vscode.OutputChannel;
 import Vscode.window;
+import Vscode.workspace;
 import Helpers;
+import system.commands.projects.*;
 
 class CreateProjects {
 
@@ -36,6 +40,17 @@ class CreateProjects {
             }
         ).then(
             function (resolve) {
+                var kha_setup = false;
+
+                if (Helpers.getConfiguration('khaPath') != null) {
+                    kha_setup = true;
+                }
+
+                if (!kha_setup) {
+                    window.showInformationMessage('Please run the Kha setup in the command palette');
+                    return;
+                }
+
                 var input_props = {
                     prompt: "Project name",
                     placeHolder: "Type a name for the project"
@@ -79,22 +94,11 @@ class CreateProjects {
                      * dynamic and flexible system for this
                      **************/                     
                     var root_dir = Helpers.homeRoot([type, name]);
-                    var project_xml = Constants.Join([root_dir, 'Project.xml']);
-
-                    parse.parseLaunchConfig(root_dir, name);
-
-                    if(Helpers.pathExists(project_xml) && !do_not_open) {
-                        var get_content = File.getContent(project_xml);
-                        var parse = new Template(get_content);
-
-                        var data = {
-                            name: name, 
-                            height: 640,
-                            width: 640
-                        }
-
-                        var content = parse.execute(data);
-                        File.saveContent(project_xml, content);                        
+                    
+                    if ( Projects.Flixel.getName() == type) {
+                        new Flixel(type, name, root_dir, output);
+                    } else if (Projects.Kha.getName() == type) {
+                        new Kha(type, name, root_dir, output);
                     }
                     
                     if (Helpers.pathExists(root_dir)) {

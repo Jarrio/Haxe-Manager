@@ -8,9 +8,12 @@ class Main {
     private var completed_setup:Bool = false;
     private var context:ExtensionContext;
     private var output:OutputChannel;
-    function new(context:ExtensionContext) {
 
+    function new(context:ExtensionContext) {
+        Constants.set_output(output);
+        
         this.output = window.createOutputChannel("HaxeManager");   
+        this.output.appendLine('Starting Haxe Manager');
         this.context = context;     
         
         var projectsRoot = workspace.getConfiguration("hxmanager").get("projectsRoot");
@@ -23,16 +26,17 @@ class Main {
         }
 
         if (completed_setup) {
+            this.output.appendLine('Loading extension...');
             this.Load();
         }
     }
     
     public function Load() {
         var config = Helpers.getConfiguration('projectType');
-        trace('Config: $config');
+        
         if (config == null || config == "" || config == "undefined") {
             workspace.getConfiguration().update('hxmanager.projectType', ["Haxe"], true);
-            trace('Set global templates to Haxe');
+            this.output.appendLine('Set global templates to Haxe');
         }
 
         new Events(context, output);
@@ -40,8 +44,7 @@ class Main {
     }
 
     public function Setup() {
-
-
+        this.output.appendLine('Running through initial setup steps...');
         var props:InputBoxOptions = { 
             prompt: "Where would you like to store your projects?",
             placeHolder: "File path",
