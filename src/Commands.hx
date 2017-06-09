@@ -9,6 +9,8 @@ import Vscode.window;
 import Vscode.workspace;
 import system.commands.CreateProjects;
 import system.commands.ProjectManager;
+import vscode.Terminal;
+import haxe.io.Path;
 
 class Commands {
 
@@ -49,29 +51,29 @@ class Commands {
      **/
     private function setupKha() {
         var khaPath = Helpers.getConfiguration('khaPath');
-        if (khaPath == null) {
-            var props:InputBoxOptions = { 
-                prompt: "What is the ROOT directory of kha?",
-                placeHolder: "File path",
-                ignoreFocusOut: true   
-            }
 
-            window.showInputBox(props).then(
-                function(path) {
-                    if (FileSystem.exists(path)) {
-                        path += '\\make';
-
-                        workspace.getConfiguration().update('hxmanager.khaPath', path, true).then(
-                            function (resolve) {
-                                output.appendLine('Set Kha path to {$path}');
-                            }
-                        );
-                    } else {
-
-                    }
-                }
-            );
+        var props:InputBoxOptions = { 
+            prompt: "What is the ROOT directory of kha?",
+            placeHolder: "File path",
+            ignoreFocusOut: true   
         }
+
+        window.showInputBox(props).then(
+            function(path) {
+                if (FileSystem.exists(path)) {
+                    path = Path.removeTrailingSlashes(path);
+                    path = Path.join([path, 'make']);
+
+                    workspace.getConfiguration().update('hxmanager.khaPath', path, true).then(
+                        function (resolve) {
+                            output.appendLine('Set Kha path to {$path}');
+                        }
+                    );
+                } else {
+
+                }
+            }
+        );        
     }
 
     /*****

@@ -12,6 +12,7 @@
 		},
 		{
 			"taskName": "windows release",
+			"isBuildCommand": true,
 			"suppressTaskName": true,
 			"echoCommand": true,
 			"args": ["windows", "--run"],
@@ -27,16 +28,14 @@
 		{
 			"taskName": "flash debug",
 			"suppressTaskName": true,
-			"isBuildCommand": true,
 			"echoCommand": true,
-			"args": ["flash", "--run", "--debug"],
+			"args": ["flash", "--compile", "--run", "--debug"],
 			"problemMatcher": "$haxe"
 		},
 		{
 			"taskName": "flash release",
 			"suppressTaskName": true,
-            "isBuildCommand": false,
-			"args": ["flash", "--run"],
+			"args": ["flash", "--compile", "--run"],
 			"problemMatcher": "$haxe"
 		},
 		{

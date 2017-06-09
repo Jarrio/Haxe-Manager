@@ -22,14 +22,14 @@
 			"name": "Flash",
 			"type": "fdb",
 			"request": "launch",
-			"program": "${workspaceRoot}/export/flash/bin/::name::.swf"
+			"program": "${workspaceRoot}/build/flash/::name::.swf"
 		},
 		{
 			"name": "Flash (+rebuild)",
 			"type": "fdb",
 			"request": "launch",
-			"program": "${workspaceRoot}/export/flash/bin/::name::.swf",
-			"preLaunchTask": "flash debug (build only)"
+			"program": "${workspaceRoot}/build/flash/::name::.swf",
+			"preLaunchTask": "flash debugger"
 		}
 	]
 }

@@ -28,17 +28,16 @@ Commands.prototype = {
 	,setupKha: function() {
 		var _gthis = this;
 		var khaPath = Helpers.getConfiguration("khaPath");
-		if(khaPath == null) {
-			var props = { prompt : "What is the ROOT directory of kha?", placeHolder : "File path", ignoreFocusOut : true};
-			Vscode.window.showInputBox(props).then(function(path) {
-				if(sys_FileSystem.exists(path)) {
-					path += "\\make";
-					Vscode.workspace.getConfiguration().update("hxmanager.khaPath",path,true).then(function(resolve) {
-						_gthis.output.appendLine("Set Kha path to {" + path + "}");
-					});
-				}
-			});
-		}
+		var props = { prompt : "What is the ROOT directory of kha?", placeHolder : "File path", ignoreFocusOut : true};
+		Vscode.window.showInputBox(props).then(function(path) {
+			if(sys_FileSystem.exists(path)) {
+				path = haxe_io_Path.removeTrailingSlashes(path);
+				path = haxe_io_Path.join([path,"make"]);
+				Vscode.workspace.getConfiguration().update("hxmanager.khaPath",path,true).then(function(resolve) {
+					_gthis.output.appendLine("Set Kha path to {" + path + "}");
+				});
+			}
+		});
 	}
 	,projectManager: function() {
 		var projects = new system_commands_ProjectManager();
@@ -172,6 +171,25 @@ haxe_io_Path.addTrailingSlash = function(path) {
 	} else {
 		return path;
 	}
+};
+haxe_io_Path.removeTrailingSlashes = function(path) {
+	try {
+		while(true) {
+			var _g = HxOverrides.cca(path,path.length - 1);
+			if(_g == null) {
+				throw "__break__";
+			} else {
+				switch(_g) {
+				case 47:case 92:
+					path = HxOverrides.substr(path,0,-1);
+					break;
+				default:
+					throw "__break__";
+				}
+			}
+		}
+	} catch( e ) { if( e != "__break__" ) throw e; }
+	return path;
 };
 haxe_io_Path.prototype = {
 	__class__: haxe_io_Path
