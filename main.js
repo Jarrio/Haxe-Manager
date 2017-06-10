@@ -34,8 +34,12 @@ Commands.prototype = {
 				path = haxe_io_Path.removeTrailingSlashes(path);
 				path = haxe_io_Path.join([path,"make"]);
 				Vscode.workspace.getConfiguration().update("hxmanager.khaPath",path,true).then(function(resolve) {
+					Vscode.window.showInformationMessage("Kha source path has been set");
 					_gthis.output.appendLine("Set Kha path to {" + path + "}");
 				});
+			} else {
+				Vscode.window.showInformationMessage("Kha path does not exist");
+				_gthis.output.appendLine("Kha path does not exist: {" + path + "}");
 			}
 		});
 	}
@@ -745,6 +749,7 @@ Main.prototype = {
 		}
 		new Events(this.context,this.output);
 		new Commands(this.context,this.output);
+		this.output.appendLine("Loaded events and commands");
 	}
 	,Setup: function() {
 		var _gthis = this;
@@ -756,10 +761,19 @@ Main.prototype = {
 					_gthis.completed_setup = true;
 					_gthis.Load();
 					Vscode.window.showInformationMessage("Project root directory has been set");
+					var khaPath = haxe_io_Path.join([input,"Kha"]);
+					var FlxPath = haxe_io_Path.join([input,"Flixel"]);
+					var HaxPath = haxe_io_Path.join([input,"Haxe"]);
+					sys_FileSystem.createDirectory(khaPath);
+					sys_FileSystem.createDirectory(FlxPath);
+					sys_FileSystem.createDirectory(HaxPath);
+					_gthis.output.appendLine("Project root directory has been set to " + input);
 				});
 				return;
+			} else {
+				Vscode.window.showErrorMessage("Failed to set directory to {" + input + "} does it exist?");
+				_gthis.output.appendLine("Couldn't find the path: " + input);
 			}
-			Vscode.window.showErrorMessage("Failed to set directory to {" + input + "} does it exist?");
 		});
 	}
 	,__class__: Main
@@ -1489,8 +1503,12 @@ system_commands_CreateProjects.prototype = {
 			if(Helpers.getConfiguration("khaPath") != null) {
 				kha_setup = true;
 			}
-			if(!kha_setup) {
+			if(!kha_setup && resolve.label == "Kha") {
 				Vscode.window.showInformationMessage("Please run the Kha setup in the command palette");
+				return;
+			}
+			if(Helpers.getConfiguration("projectsRoot") == null) {
+				Vscode.window.showInformationMessage("The extension requires a location to store projects");
 				return;
 			}
 			var input_props = { prompt : "Project name", placeHolder : "Type a name for the project"};
@@ -1517,6 +1535,7 @@ system_commands_CreateProjects.prototype = {
 					do_not_open = true;
 					return;
 				}
+				haxe_Log.trace("Source: " + source + " | Input: " + input,{ fileName : "CreateProjects.hx", lineNumber : 93, className : "system.commands.CreateProjects", methodName : "create"});
 				Helpers.copyFolders(source,input);
 				Helpers.renameDirectory(rename,output_file,system_commands_CreateProjects.output);
 				var root_dir = Helpers.homeRoot([type1,name]);
@@ -1524,14 +1543,18 @@ system_commands_CreateProjects.prototype = {
 					new system_commands_projects_Flixel(type1,name,root_dir,system_commands_CreateProjects.output);
 				} else if(system_enums_Projects.Kha[0] == type1) {
 					new system_commands_projects_Kha(type1,name,root_dir,system_commands_CreateProjects.output);
+				} else {
+					system_commands_CreateProjects.output.appendLine("Here");
 				}
 				if(Helpers.pathExists(root_dir)) {
 					Helpers.openProject(root_dir,true);
-					haxe_Log.trace("name: " + name,{ fileName : "CreateProjects.hx", lineNumber : 106, className : "system.commands.CreateProjects", methodName : "create"});
-					haxe_Log.trace("Project " + name + " created",{ fileName : "CreateProjects.hx", lineNumber : 107, className : "system.commands.CreateProjects", methodName : "create"});
+					haxe_Log.trace("name: " + name,{ fileName : "CreateProjects.hx", lineNumber : 115, className : "system.commands.CreateProjects", methodName : "create"});
+					haxe_Log.trace("Project " + name + " created",{ fileName : "CreateProjects.hx", lineNumber : 116, className : "system.commands.CreateProjects", methodName : "create"});
 					return;
+				} else {
+					Vscode.window.showErrorMessage("Failed to create the project");
 				}
-				haxe_Log.trace("Failed to create the project",{ fileName : "CreateProjects.hx", lineNumber : 111, className : "system.commands.CreateProjects", methodName : "create"});
+				system_commands_CreateProjects.output.appendLine("Failed to create the project");
 				return;
 			};
 			var error = function(response) {

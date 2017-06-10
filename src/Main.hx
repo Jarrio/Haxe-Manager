@@ -1,5 +1,6 @@
 package;
 
+import haxe.io.Path;
 import sys.FileSystem;
 import Vscode.*;
 import vscode.*;
@@ -41,6 +42,8 @@ class Main {
 
         new Events(context, output);
         new Commands(context, output);
+
+        this.output.appendLine('Loaded events and commands');
     }
 
     public function Setup() {
@@ -51,8 +54,6 @@ class Main {
             ignoreFocusOut: true   
         }
 
-        // window.showInformationMessage("Would you like projects to be seperated in the root folder based on project type? (default: Yes)", { modal: true }, 'Yes', 'No').then(
-
         window.showInputBox(props).then(
             function (input) {
                 if (FileSystem.exists(input)) {
@@ -61,12 +62,24 @@ class Main {
                             this.completed_setup = true;
                             Load();
                             window.showInformationMessage('Project root directory has been set');
+                            
+                            //@TODO: Change to loop through an array rather than manually do this QUICK BUGFIX
+                            var khaPath = Path.join([input, 'Kha']);
+                            var FlxPath = Path.join([input, 'Flixel']);
+                            var HaxPath = Path.join([input, 'Haxe']);
+                            
+                            FileSystem.createDirectory(khaPath);
+                            FileSystem.createDirectory(FlxPath);
+                            FileSystem.createDirectory(HaxPath);
+
+                            output.appendLine('Project root directory has been set to $input');
                         }
                     );
                     return;
+                } else {
+                    window.showErrorMessage('Failed to set directory to {$input} does it exist?');
+                    output.appendLine('Couldn\'t find the path: $input');
                 }
-                
-                window.showErrorMessage('Failed to set directory to {$input} does it exist?');
             }
         );
     }

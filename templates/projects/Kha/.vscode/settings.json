@@ -1,9 +1,10 @@
 {
     "haxe.displayConfigurations": [
-        ["build/project-windows.hxml"],
-        ["build/project-flash.hxml"],
-        ["build/project-linux.hxml"],
-        ["build/project-android.hxml"]
+        ["--cwd", "build", "project-windows.hxml"],
+        ["--cwd", "build", "project-flash.hxml"],
+        ["--cwd", "build", "project-linux.hxml"],
+        ["--cwd", "build", "project-html5.hxml"],
+        ["--cwd", "build", "project-android.hxml"]
 	],
 	"haxe.diagnosticsPathFilter": "${workspaceRoot}/Sources",
 	"search.exclude": {

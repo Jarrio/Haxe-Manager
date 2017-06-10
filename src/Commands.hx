@@ -66,11 +66,13 @@ class Commands {
 
                     workspace.getConfiguration().update('hxmanager.khaPath', path, true).then(
                         function (resolve) {
+                            window.showInformationMessage('Kha source path has been set');                            
                             output.appendLine('Set Kha path to {$path}');
                         }
                     );
                 } else {
-
+                    window.showInformationMessage('Kha path does not exist');
+                    output.appendLine('Kha path does not exist: {$path}');
                 }
             }
         );        

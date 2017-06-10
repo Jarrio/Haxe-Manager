@@ -46,8 +46,13 @@ class CreateProjects {
                     kha_setup = true;
                 }
 
-                if (!kha_setup) {
+                if (!kha_setup && resolve.label == "Kha") {
                     window.showInformationMessage('Please run the Kha setup in the command palette');
+                    return;
+                }
+
+                if (Helpers.getConfiguration('projectsRoot') == null) {
+                    window.showInformationMessage('The extension requires a location to store projects');
                     return;
                 }
 
@@ -85,6 +90,8 @@ class CreateProjects {
                         return;
                     }
 
+                    trace('Source: $source | Input: $input');
+
                     Helpers.copyFolders(source, input);                    
                     Helpers.renameDirectory(rename, output_file, output);
 
@@ -99,6 +106,8 @@ class CreateProjects {
                         new Flixel(type, name, root_dir, output);
                     } else if (Projects.Kha.getName() == type) {
                         new Kha(type, name, root_dir, output);
+                    } else {
+                        output.appendLine('Here');
                     }
                     
                     if (Helpers.pathExists(root_dir)) {
@@ -106,9 +115,11 @@ class CreateProjects {
                         trace('name: $name');
                         trace('Project $name created');
                         return;
-                    }      
+                    } else {
+                        window.showErrorMessage('Failed to create the project');
+                    }
                     
-                    trace('Failed to create the project');
+                    output.appendLine('Failed to create the project');
                     return;          
                 }
 

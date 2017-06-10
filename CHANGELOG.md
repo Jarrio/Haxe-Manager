@@ -1,5 +1,18 @@
 # Features and improvements
 
+#### 0.3.7
+- [x] Auto-completion for Kha is now available!
+- [x] Bugfix: Flash application will now open when run from the debugger
+
+#### 0.3.6
+- [x] Bugfix: Fixed Kha launch.json
+
+#### 0.3.5
+- [x] Bugfix: Being asked to setup kha for non-kha projects
+- [x] Added more output messages
+- [x] Added more info messages
+- [x] Project folders will be created when going through initial setup
+
 #### 0.3.4
 - [x] Added Kha support. Debugging works on Flash and HTML5, check the wiki for more information
 

@@ -10,7 +10,7 @@
         "haxe", "snippets", "openfl", "haxeflixel"
     ],
     "icon": "images/haxe-logo.png",
-    "version": "0.3.4",
+    "version": "0.3.7",
     "engines": {
         "vscode": "^1.4.0"
     },

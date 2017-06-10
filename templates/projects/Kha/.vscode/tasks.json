@@ -8,7 +8,10 @@
 			"suppressTaskName": true,
 			"echoCommand": true,
 			"args": ["windows", "--run", "--debug"],
-			"problemMatcher": "$haxe"
+			"problemMatcher": {
+				"fileLocation": ["relative", "${workspaceRoot}/build"],
+				"pattern": "$haxe"
+			}
 		},
 		{
 			"taskName": "windows release",
@@ -16,35 +19,49 @@
 			"suppressTaskName": true,
 			"echoCommand": true,
 			"args": ["windows", "--run"],
-			"problemMatcher": "$haxe"
+			"problemMatcher": {
+				"fileLocation": ["relative", "${workspaceRoot}/build"],
+				"pattern": "$haxe"
+			}
 		},
 		{
 			"taskName": "html5 debugger",
 			"suppressTaskName": true,
 			"echoCommand": true,
-			"args": ["html5", "--run", "--debug", "--port 8080", "--server true"],
-			"problemMatcher": "$haxe"
+			"args": ["html5", "--run", "--debug", "--port 8080", "--server"],
+			"problemMatcher": {
+				"fileLocation": ["relative", "${workspaceRoot}/build"],
+				"pattern": "$haxe"
+			}
 		},
 		{
 			"taskName": "flash debug",
 			"suppressTaskName": true,
 			"echoCommand": true,
 			"args": ["flash", "--compile", "--run", "--debug"],
-			"problemMatcher": "$haxe"
+			"problemMatcher": {
+				"fileLocation": ["relative", "${workspaceRoot}/build"],
+				"pattern": "$haxe"
+			}
 		},
 		{
 			"taskName": "flash release",
 			"suppressTaskName": true,
 			"args": ["flash", "--compile", "--run"],
-			"problemMatcher": "$haxe"
+			"problemMatcher": {
+				"fileLocation": ["relative", "${workspaceRoot}/build"],
+				"pattern": "$haxe"
+			}
 		},
 		{
 			"taskName": "flash debugger",
 			"suppressTaskName": true,
-			"isBuildCommand": true,
 			"echoCommand": true,
 			"args": ["flash", "--compile", "--debug"],
-			"problemMatcher": "$haxe"
+			"problemMatcher": {
+				"fileLocation": ["relative", "${workspaceRoot}/build"],
+				"pattern": "$haxe"
+			}
 		}	
     ]
 }
