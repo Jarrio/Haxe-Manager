@@ -1,5 +1,7 @@
-* [Marketplace download](https://marketplace.visualstudio.com/items?itemName=jarrio.hxmanager)
+
 # Features and improvements
+* [Marketplace download](https://marketplace.visualstudio.com/items?itemName=jarrio.hxmanager)
+
 #### 0.3.9
 * [Bugfix] Don't add `isBuildCommand` if the task file doesn't originally contain it
 
