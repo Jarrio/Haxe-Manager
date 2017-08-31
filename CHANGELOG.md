@@ -4,7 +4,7 @@
 #### 0.3.8
 * [x] Added the following snippets
 	* Basic haxe types including abstract enums
-	* A bunch of if/if else statements
+	* Conditionals
 		* if
 		* ifelse
 		* ifelseif
