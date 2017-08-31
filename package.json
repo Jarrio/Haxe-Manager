@@ -10,7 +10,7 @@
         "haxe", "snippets", "openfl", "haxeflixel"
     ],
     "icon": "images/haxe-logo.png",
-    "version": "0.3.7",
+    "version": "0.3.8",
     "engines": {
         "vscode": "^1.4.0"
     },
@@ -67,6 +67,10 @@
             {
                 "command": "hxmanager.CreateProjects",
                 "title": "Haxe: Create a Project"
+            },            
+            {
+                "command": "hxmanager.SelectTask",
+                "title": "Haxe: Task Selector"
             },            
             {
                 "command": "hxmanager.SetupKha",

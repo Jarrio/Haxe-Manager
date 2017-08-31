@@ -9,10 +9,18 @@ function $extend(from, fields) {
 	return proto;
 }
 var Commands = function(context,output) {
+	this.buildCommand = false;
+	var _gthis = this;
 	this.output = output;
 	this.context = context;
-	this.registerCommands();
+	this.config = Vscode.workspace.getConfiguration("tasks",Vscode.window.activeTextEditor.document.uri);
+	this.tasks = this.config.get("tasks");
 	Constants.set_output(output);
+	Vscode.workspace.createFileSystemWatcher("**/tasks.json",true,false,true).onDidChange(function(uri) {
+		_gthis.updateTaskSelecter();
+	});
+	this.registerCommands();
+	this.loadTasks();
 };
 Commands.__name__ = true;
 Commands.prototype = {
@@ -20,6 +28,95 @@ Commands.prototype = {
 		Helpers.registerCommand(this.context,"CreateProjects",$bind(this,this.createProjects));
 		Helpers.registerCommand(this.context,"SetupKha",$bind(this,this.setupKha));
 		Helpers.registerCommand(this.context,"ProjectManager",$bind(this,this.projectManager));
+		Helpers.registerCommand(this.context,"SelectTask",$bind(this,this.selectTask));
+	}
+	,updateTaskSelecter: function() {
+		var _g = 0;
+		var _g1 = this.tasks;
+		while(_g < _g1.length) {
+			var task = _g1[_g];
+			++_g;
+			if(task.group != "none" && task.group != null) {
+				this.selectedTask = task.taskName;
+			}
+			if(task.isBuildCommand) {
+				this.buildCommand = true;
+				this.selectedTask = task.taskName;
+			}
+		}
+		if(this.selectedTask != "" && this.taskPicker != null) {
+			this.taskPicker.text = this.selectedTask;
+		}
+	}
+	,loadTasks: function() {
+		var _g = 0;
+		var _g1 = this.tasks;
+		while(_g < _g1.length) {
+			var task = _g1[_g];
+			++_g;
+			if(task.group != "none" && task.group != null) {
+				this.selectedTask = task.taskName;
+			}
+			if(task.isBuildCommand) {
+				this.buildCommand = true;
+				this.selectedTask = task.taskName;
+			}
+		}
+		if(this.selectedTask != "") {
+			this.taskPicker = Vscode.window.createStatusBarItem(vscode__$StatusBarAlignment_StatusBarAlignment_$Impl_$.Left,12);
+			this.taskPicker.tooltip = "Select a task";
+			this.taskPicker.text = this.selectedTask;
+			this.taskPicker.command = "hxmanager.SelectTask";
+			this.taskPicker.show();
+			this.context.subscriptions.push(this.taskPicker);
+		}
+	}
+	,selectTask: function() {
+		var _gthis = this;
+		var items = [];
+		var _g = 0;
+		var _g1 = this.tasks;
+		while(_g < _g1.length) {
+			var task = _g1[_g];
+			++_g;
+			var quickPick = Helpers.quickPickItem(task.taskName);
+			items.push(quickPick);
+		}
+		Vscode.window.showQuickPick(items).then(function(response) {
+			if(response != null && response.label != null) {
+				var taskName = response.label;
+				if(_gthis.selectedTask != taskName) {
+					var group = { kind : "build", isDefault : true};
+					var newTasks = [];
+					var _g2 = 0;
+					var _g11 = _gthis.tasks;
+					while(_g2 < _g11.length) {
+						var task1 = _g11[_g2];
+						++_g2;
+						if(task1.taskName != taskName) {
+							if(task1.group != null) {
+								task1.group = "none";
+							}
+							task1.isBuildCommand = false;
+						}
+						if(task1.taskName == taskName) {
+							if(!_gthis.buildCommand) {
+								task1.group = group;
+							} else {
+								task1.isBuildCommand = true;
+							}
+						}
+						newTasks.push(task1);
+					}
+					_gthis.config.update("tasks",newTasks).then(function(s) {
+						_gthis.selectedTask = taskName;
+						_gthis.taskPicker.text = taskName;
+					},function(response1) {
+						_gthis.output.append("Error: " + Std.string(response1));
+					});
+				}
+			}
+		});
 	}
 	,createProjects: function() {
 		var projects = new system_commands_CreateProjects(this.output);
@@ -629,17 +726,14 @@ var Events = function(context,output) {
 			Vscode.commands.getCommands(true).then(function(resolve) {
 				_gthis.parse.GetClassTemplates(uri.fsPath);
 			},function(reject) {
-				haxe_Log.trace("Reject",{ fileName : "Events.hx", lineNumber : 30, className : "Events", methodName : "new"});
+				haxe_Log.trace("Reject",{ fileName : "Events.hx", lineNumber : 31, className : "Events", methodName : "new"});
 			});
 		}
 	});
 };
 Events.__name__ = true;
 Events.prototype = {
-	InputBoxProps: function() {
-		return { prompt : "Class Name", placeHolder : "Type a name for the class"};
-	}
-	,__class__: Events
+	__class__: Events
 };
 var HxOverrides = function() { };
 HxOverrides.__name__ = true;
@@ -1678,6 +1772,7 @@ system_enums_Projects.Kha.__enum__ = system_enums_Projects;
 system_enums_Projects.__empty_constructs__ = [system_enums_Projects.Flixel,system_enums_Projects.Haxe,system_enums_Projects.Kha];
 var vscode_Position = require("vscode").Position;
 var vscode_Range = require("vscode").Range;
+var vscode__$StatusBarAlignment_StatusBarAlignment_$Impl_$ = require("vscode").StatusBarAlignment;
 var vscode_Uri = require("vscode").Uri;
 var $_, $fid = 0;
 function $bind(o,m) { if( m == null ) return null; if( m.__id__ == null ) m.__id__ = $fid++; var f; if( o.hx__closures__ == null ) o.hx__closures__ = {}; else f = o.hx__closures__[m.__id__]; if( f == null ) { f = function(){ return f.method.apply(f.scope, arguments); }; f.scope = o; f.method = m; o.hx__closures__[m.__id__] = f; } return f; }

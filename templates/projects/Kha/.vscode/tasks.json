@@ -5,8 +5,6 @@
 	"tasks": [
 		{
 			"taskName": "windows debug",
-			"suppressTaskName": true,
-			"echoCommand": true,
 			"args": ["windows", "--run", "--debug"],
 			"problemMatcher": {
 				"fileLocation": ["relative", "${workspaceRoot}/build"],
@@ -15,10 +13,11 @@
 		},
 		{
 			"taskName": "windows release",
-			"isBuildCommand": true,
-			"suppressTaskName": true,
-			"echoCommand": true,
 			"args": ["windows", "--run"],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			},			
 			"problemMatcher": {
 				"fileLocation": ["relative", "${workspaceRoot}/build"],
 				"pattern": "$haxe"
@@ -26,8 +25,6 @@
 		},
 		{
 			"taskName": "html5 debugger",
-			"suppressTaskName": true,
-			"echoCommand": true,
 			"args": ["html5", "--run", "--debug", "--port 8080", "--server"],
 			"problemMatcher": {
 				"fileLocation": ["relative", "${workspaceRoot}/build"],
@@ -36,8 +33,6 @@
 		},
 		{
 			"taskName": "flash debug",
-			"suppressTaskName": true,
-			"echoCommand": true,
 			"args": ["flash", "--compile", "--run", "--debug"],
 			"problemMatcher": {
 				"fileLocation": ["relative", "${workspaceRoot}/build"],
@@ -46,7 +41,6 @@
 		},
 		{
 			"taskName": "flash release",
-			"suppressTaskName": true,
 			"args": ["flash", "--compile", "--run"],
 			"problemMatcher": {
 				"fileLocation": ["relative", "${workspaceRoot}/build"],
@@ -55,8 +49,6 @@
 		},
 		{
 			"taskName": "flash debugger",
-			"suppressTaskName": true,
-			"echoCommand": true,
 			"args": ["flash", "--compile", "--debug"],
 			"problemMatcher": {
 				"fileLocation": ["relative", "${workspaceRoot}/build"],

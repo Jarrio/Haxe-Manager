@@ -2,8 +2,8 @@
     "public function": {
         "prefix": "public function",
         "body": [
-            "public function ${1:name}(${2:values}):${3:return} {",
-            "\t$4",
+            "public ${1:prop} function ${2:name}(${3:values}):${4:return} {",
+            "\t$5",
             "}"
         ],
         "description": "A public function"
@@ -12,11 +12,77 @@
     "private function": {
         "prefix": "private function",
         "body": [
-            "private function ${1:name}(${2:values}):${3:return} {",
+            "private ${1:prop} function ${2:name}(${3:values}):${3:return} {",
             "\t$4",
             "}"
         ],
         "description": "A private function"
+	},
+	
+    "override function": {
+        "prefix": "override function",
+        "body": [
+            "override ${1:access} function ${2:name}(${3:values}):${4:return} {",
+            "\t$5",
+            "}"
+        ],
+        "description": "An override function"
+	},
+	
+    "if": {
+        "prefix": "if",
+        "body": [
+            "if (${1:conditions}) {",
+            "\t$2",
+            "}"
+        ],
+        "description": "An if statement"
+	},
+	
+    "else": {
+        "prefix": "else",
+        "body": [
+			"else {",
+			"\t$1",
+			"}"
+        ],
+        "description": "else statement"
+	},
+
+    "if else": {
+        "prefix": "ifelse",
+        "body": [
+            "if (${1:conditions}) {",
+            "\t$2",
+			"} else {",
+			"\t$3",
+			"}"
+        ],
+        "description": "An if else statement"
+	},
+	
+    "if else if": {
+        "prefix": "ifelseif",
+        "body": [
+            "if (${1:condition}) {",
+            "\t$2",
+			"} else if (${3:condition}) {",
+			"\t$4",
+			"}"
+        ],
+        "description": "An if else if statement"
+	},
+	
+    "if else if else": {
+        "prefix": "ifelseifelse",
+        "body": [
+            "if (${1:condition}) {",
+            "\t$2",
+			"} else if (${3:condition}) {",
+			"\t$4",
+			"}"
+        ],
+        "description": "An if else if statement"
     },
 
     "accessor": {
@@ -75,5 +141,53 @@
             "}"
         ],
         "description": "A switch case"
-    }
+	},
+	
+	"typedef": {
+		"prefix": "typedef",
+		"body":[
+			"typedef ${1:name} = {",
+			"\t$2",
+			"}"
+		]
+	},
+
+	"class": {
+		"prefix": "class",
+		"body":[
+			"class ${1:name} {",
+			"\tpublic function new(${2:value}) {",
+			"\t\t$3",
+			"\t}",
+			"}"
+		]
+	},
+
+	"abstract": {
+		"prefix": "abstract",
+		"body":[
+			"abstract ${1:name}(${2:type}) {",
+			"\t$3",
+			"}"
+		]
+	},
+
+	"abstract enum": {
+		"prefix": "@:enum abstract",		
+		"body":[
+			"@:enum abstract ${1:name}(${2:type}) {",
+			"\tvar ${3:property} = ${4:value};",
+			"}"
+		]
+	},
+
+	"enum": {
+		"prefix": "enum",
+		"body":[
+			"enum ${1:name} {",
+			"\t$2",
+			"}"
+		]
+	}
+
 }
