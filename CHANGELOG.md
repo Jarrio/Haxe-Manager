@@ -17,7 +17,7 @@
 	* Added a new placeholder for functions to define `static` and `inline`
 * [x] Updated Flixel's `tasks.json` file
 * [x] Updated Kha's `tasks.json` file
-* [x] Added a task switcher at the bottom left
+* [x] Added a task switcher at the bottom left [Demo](https://github.com/Jarrio/Haxe-Manager/wiki/Task-Switcher)
 
 
 #### 0.3.7
