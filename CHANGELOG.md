@@ -1,3 +1,4 @@
+* [Marketplace download](https://marketplace.visualstudio.com/items?itemName=jarrio.hxmanager)
 # Features and improvements
 
 #### 0.3.8
