@@ -1,4 +1,6 @@
 # Features and improvements
+#### 0.3.9
+* [Bugfix] Don't add `isBuildCommand` if the task file doesn't originally contain it
 
 #### 0.3.8
 * [x] Added the following snippets

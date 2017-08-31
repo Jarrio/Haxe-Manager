@@ -97,7 +97,9 @@ Commands.prototype = {
 							if(task1.group != null) {
 								task1.group = "none";
 							}
-							task1.isBuildCommand = false;
+							if(_gthis.buildCommand) {
+								task1.isBuildCommand = false;
+							}
 						}
 						if(task1.taskName == taskName) {
 							if(!_gthis.buildCommand) {

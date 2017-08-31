@@ -124,7 +124,9 @@ class Commands {
 									task.group = "none";								
 								}
 
-								task.isBuildCommand = false;
+								if (buildCommand) {
+									task.isBuildCommand = false;
+								}
 							}
 
 							if (task.taskName == taskName) {
