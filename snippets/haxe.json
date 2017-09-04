@@ -12,7 +12,7 @@
     "private function": {
         "prefix": "private function",
         "body": [
-            "private ${1:prop} function ${2:name}(${3:values}):${3:return} {",
+            "private ${1:prop} function ${2:name}(${3:values}):${4:return} {",
             "\t$0",
             "}"
         ],
@@ -191,11 +191,6 @@
 			"\t$0",
 			"}"
 		]
-    },
-    
-    "default null": {
-        "prefix": "defaultnull",
-        "body": "public ${1:static} var ${2:name}(default, null):${3:type};"
     }
 
 }
