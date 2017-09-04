@@ -3,7 +3,7 @@
         "prefix": "public function",
         "body": [
             "public ${1:prop} function ${2:name}(${3:values}):${4:return} {",
-            "\t$5",
+            "\t$0",
             "}"
         ],
         "description": "A public function"
@@ -12,8 +12,8 @@
     "private function": {
         "prefix": "private function",
         "body": [
-            "private ${1:prop} function ${2:name}(${3:values}):${3:return} {",
-            "\t$4",
+            "private ${1:prop} function ${2:name}(${3:values}):${4:return} {",
+            "\t$0",
             "}"
         ],
         "description": "A private function"
@@ -23,7 +23,7 @@
         "prefix": "override function",
         "body": [
             "override ${1:access} function ${2:name}(${3:values}):${4:return} {",
-            "\t$5",
+            "\t$0",
             "}"
         ],
         "description": "An override function"
@@ -33,7 +33,7 @@
         "prefix": "if",
         "body": [
             "if (${1:conditions}) {",
-            "\t$2",
+            "\t$0",
             "}"
         ],
         "description": "An if statement"
@@ -43,7 +43,7 @@
         "prefix": "else",
         "body": [
 			"else {",
-			"\t$1",
+			"\t$0",
 			"}"
         ],
         "description": "else statement"
@@ -55,7 +55,7 @@
             "if (${1:conditions}) {",
             "\t$2",
 			"} else {",
-			"\t$3",
+			"\t$0",
 			"}"
         ],
         "description": "An if else statement"
@@ -67,7 +67,7 @@
             "if (${1:condition}) {",
             "\t$2",
 			"} else if (${3:condition}) {",
-			"\t$4",
+			"\t$0",
 			"}"
         ],
         "description": "An if else if statement"
@@ -80,7 +80,10 @@
             "\t$2",
 			"} else if (${3:condition}) {",
 			"\t$4",
-			"}"
+            "}",
+            "else {",
+            "\t$0",
+            "}"
         ],
         "description": "An if else if statement"
     },
@@ -125,7 +128,7 @@
         "prefix": "for", 
         "body":[
             "for (${1:i} in ${2:value}) {",
-            "\t$3",
+            "\t$0",
             "}"
         ],
         "description": "A for loop"
@@ -137,7 +140,7 @@
             "switch (${1:subject}) {",
             "\tcase ${2:pattern}: $3",
             "\tdefault:",
-            "\t\t$4",
+            "\t\t$0",
             "}"
         ],
         "description": "A switch case"
@@ -147,7 +150,7 @@
 		"prefix": "typedef",
 		"body":[
 			"typedef ${1:name} = {",
-			"\t$2",
+			"\t$0",
 			"}"
 		]
 	},
@@ -157,7 +160,7 @@
 		"body":[
 			"class ${1:name} {",
 			"\tpublic function new(${2:value}) {",
-			"\t\t$3",
+			"\t\t$0",
 			"\t}",
 			"}"
 		]
@@ -167,7 +170,7 @@
 		"prefix": "abstract",
 		"body":[
 			"abstract ${1:name}(${2:type}) {",
-			"\t$3",
+			"\t$0",
 			"}"
 		]
 	},
@@ -185,9 +188,9 @@
 		"prefix": "enum",
 		"body":[
 			"enum ${1:name} {",
-			"\t$2",
+			"\t$0",
 			"}"
 		]
-	}
+    }
 
 }
