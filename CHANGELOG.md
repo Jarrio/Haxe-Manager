@@ -1,10 +1,12 @@
 * [Marketplace download](https://marketplace.visualstudio.com/items?itemName=jarrio.hxmanager)
+
 # Features and improvements
+
 #### 0.4.0
 * Snippet position changes
 
 #### 0.3.9
-* [Bugfix] Don't add `isBuildCommand` if the task file doesn't originally contain it
+* [Bugfix] Don't add `isBuildCommand` if the task file didn't originally contain it
 
 #### 0.3.8
 * [x] Added the following snippets
@@ -18,7 +20,7 @@
 	* Added a new placeholder for functions to define `static` and `inline`
 * [x] Updated Flixel's `tasks.json` file
 * [x] Updated Kha's `tasks.json` file
-* [x] Added a task switcher at the bottom left
+* [x] Added a task switcher at the bottom left [Demo](https://github.com/Jarrio/Haxe-Manager/wiki/Task-Switcher)
 
 
 #### 0.3.7
