@@ -54,6 +54,7 @@ class Main {
             ignoreFocusOut: true   
         }
 
+		
         window.showInputBox(props).then(
             function (input) {
                 if (FileSystem.exists(input)) {
