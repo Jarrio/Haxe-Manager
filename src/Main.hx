@@ -11,6 +11,7 @@ class Main {
     private var output:OutputChannel;
 
     function new(context:ExtensionContext) {
+		trace(Vscode.extensions.getExtension('jarrio.hxmanager').extensionPath);
         Constants.set_output(output);
         
         this.output = window.createOutputChannel("HaxeManager");   

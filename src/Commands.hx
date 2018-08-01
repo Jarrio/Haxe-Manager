@@ -1,5 +1,6 @@
 package;
 
+import haxe.Json;
 import sys.FileSystem;
 import vscode.InputBoxOptions;
 import Helpers;
@@ -31,9 +32,12 @@ class Commands {
     public function new(context:ExtensionContext, output:OutputChannel) {        
         this.output = output;
         this.context = context;  
-		
-		config = workspace.getConfiguration('tasks',  window.activeTextEditor.document.uri);
-		tasks = config.get("tasks");
+		// while (window.activeTextEditor != null && window.visibleTextEditors.length > 0) {
+
+		// }
+		// var active_editor = window.visibleTextEditors[0];
+		// config = Vscode.workspace.getConfiguration('tasks',  active_editor.document.uri);
+		// tasks = config.get("tasks");
 
         
         Constants.set_output(output); 		
@@ -45,7 +49,7 @@ class Commands {
 		);
 		
 		this.registerCommands();   
-		loadTasks();		
+		// loadTasks();		
     }
 
     /**

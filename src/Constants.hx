@@ -1,5 +1,6 @@
 package;
 
+import vscode.FileType;
 import vscode.OutputChannel;
 import haxe.io.Path;
 
@@ -64,7 +65,39 @@ class Constants {
      *  @param paths - An array of the folder paths. No slashes are required
      **/
     public static function Join(paths:Array<String>) {
-        return ApplySlash(Path.join(paths));
+		// var file_found = false;
+		// if (paths == null || paths.length == 0) {
+		// 	return null;
+		// }
+
+		// for (item in paths) {
+		// 	if (item == null) {
+		// 		continue;
+		// 	}
+
+		// 	if (item.indexOf('.') != -1) {
+		// 		file_found = true;
+		// 		break;
+		// 	}
+		// }
+
+		var path = Path.join(paths);
+		// if (file_found) {
+		// 	var file_type = path.split('.')[1];
+			
+		// 	if (file_type != null && !checkFileTypes(file_type))  {
+		// 		file_type = file_type.substring(0, file_type.length - 1);
+				
+		// 		if (!checkFileTypes(file_type)) {
+		// 			trace('Invalid file type {Unknown error} | $file_type');
+		// 			return null;
+		// 		}
+
+		// 		path = path.substring(0, path.length - 1);
+		// 	}
+		// }
+
+        return path;
     }
 
     /**
@@ -75,4 +108,8 @@ class Constants {
     private static function ApplySlash(directory:String):String {
         return Path.addTrailingSlash(directory);
     }
+
+	private static function checkFileTypes(extension:String):Bool {
+		return (extension == 'hx' || extension == 'json' || extension == 'xml');
+	}
 }

@@ -2,6 +2,10 @@
 
 # Features and improvements
 
+#### 0.4.5
+* Removed task picker temporarily due to an unknown issue
+* Fixed issues with templates not appearing on Linux when creating a new file
+
 #### 0.4.0
 * Snippet position changes
 

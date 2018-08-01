@@ -13,6 +13,7 @@ import haxe.Json;
 import haxe.io.Path;
 import haxe.Template;
 import system.enums.Projects;
+import Typedefs;
 
 class Parse {
 
@@ -60,7 +61,7 @@ class Parse {
             var project_file = this.GetFileContents(file_path);
             var parse = new Template(project_file);
             
-            var data:TypeDefs.Flixel = {
+            var data:Flixel = {
                 name: name,
                 height: 500,
                 width: 500
@@ -102,7 +103,7 @@ class Parse {
             var file_location = Constants.Join([Constants.class_root, type, 'templates.json']);
 
             var parse_template = Json.parse(sys.io.File.getContent(file_location));
-            var templates:Array<TypeDefs.ClassTemplate> = parse_template.templates;
+            var templates:Array<ClassTemplate> = parse_template.templates;
             
             for (template in templates) {
                 items.push(this.CreateQuickPickItem(template.type, template.description, type));
